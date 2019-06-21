@@ -76,7 +76,7 @@
         rest (apply str (drop 2 matches))]
     [e-class1 rest]))
 
-(defn process-spec-errors
+(defn process-errors
   "Takes a message from an exception as a string and returns a message object,
   to be displayed by the repl or IDE"
   [ex-str]
@@ -85,9 +85,84 @@
         message (second parsing)
         entry (get-match e-class message)
         ;msg-info-obj (make-msg-info-hashes ex-str "\n" e-class " & " message "\n")]
-        msg-info-obj (msg-from-matched-entry entry message)]
+        msg-info-obj (or (msg-from-matched-entry entry message) (make-msg-info-hashes "No message detected"))]
     {:exception-class e-class
      :msg-info-obj  msg-info-obj}))
+
+(defn process-length
+  [ex-str]
+  (let [normal (re-matches #"b-length(\d+)\?" ex-str)
+        greater (re-matches #"b-length-greater(\d+)\?" ex-str)
+        greatereq (re-matches #"b-length-(\d+)greater\?" ex-str)
+        to (re-matches #"b-length(\d+)-to-(\d+)\?" ex-str)]
+        (if normal
+            (str (number-word (first (rest normal))) " argument")
+            (if greater
+                (str (number-word (str (+ 1 (read-string (first (rest greater)))))) " or more arguments")
+                (if greatereq
+                    (str (number-word (first (rest greatereq))) " or more arguments")
+                    (if to
+                      (str (number-word (first (rest to))) " to " (number-word (first (rest (rest to)))) " arguments")
+                      " no babel length data found"))))))
+
+(defn process-another
+  [functname location ex-str]
+  (let [not-zero (re-matches #"b-not-0\?" ex-str)]
+       (if not-zero
+           (str "In function " functname ", the " location " cannot be 0.\n"))))
+
+(defn create-spec-errors
+  "Takes the message and data from a spec error and returns a modified message"
+  [ex-str data]
+  (let [functname (second (rest (rest (first (re-seq #"(.*)Call to (.*)/(.*) did not conform to spec(.*)" ex-str)))))
+        functdata (first (:clojure.spec.alpha/problems data))
+        location (first (:in functdata))
+        shouldbe (second (rest (re-matches #"(.*)\/(.*)" (str (:pred functdata)))))
+        wrongval (:val functdata)
+        via (first (:via functdata))
+        wrongvaltype (str/replace (str (type wrongval)) #"class " "")]
+  (if (nil? (re-matches #"b-length(.*)" shouldbe))
+      (if (nil? (re-matches #"b-(.*)" shouldbe))
+          (str "In function " functname ", the " (arg-str location) " is expected to be a " (?-name shouldbe) ", but is " (get-dictionary-type wrongvaltype) wrongval " instead.\n")
+          (str (process-another functname (arg-str location) shouldbe)))
+      (str functname " can only take " (process-length shouldbe) "; received " (number-arg (str (count wrongval))) ".\n"))))
+
+(defn process-spec-errors
+  "Processes spec errors according to if they are a macro or not"
+  [ex-str data notmacro]
+  (let [locationdata (:clojure.spec.test.alpha/caller data)
+        linenumber (str "Line: " (:line locationdata))
+        sourcefile (str "\nIn: " (:file locationdata) "\n")]
+  (if notmacro
+    (str (create-spec-errors ex-str data) linenumber sourcefile)
+    (str (create-spec-errors ex-str data)))))
+
+(defn process-macro-errors
+  "Takes the message and data from a macro error and returns a modified message"
+  [err cause data]
+  (let [errmap (Throwable->map err)
+        specerrdata (:data errmap)
+        seconderr (second (:via errmap))
+        errmsg (:message seconderr)
+        errclass (:type seconderr)
+        linenumber (str "Line: " (:clojure.error/line data))
+        columnnumber (str " Column: " (:clojure.error/column data))
+        sourcefile (str "\nIn: " (:clojure.error/source data) "\n")]
+        (if (nil? specerrdata)
+          (str (get-all-text (:msg-info-obj (process-errors (str errclass " " errmsg)))) linenumber columnnumber sourcefile)
+          (str (process-spec-errors errmsg specerrdata false) linenumber columnnumber sourcefile))))
+
+(def ignored-ns {:clojure.core "clojure.core"
+                 :clojure.string "clojure.string"})
+
+(defn process-stacktrace
+  "Takes an error and returns the location of the error"
+  [err]
+  (let [errtrace (:trace (Throwable->map err))
+        invokestatic (first (filter #(and (= (str (first (rest %))) "invokeStatic") (and (not (nil? (re-seq #"(\S*)\$(\S*)" (str (first %))))) (nil? (ignored-ns (keyword (second (first (re-seq #"(\S*)\$(\S*)" (str (first %)))))))))) errtrace))
+        linenumber (str "Line: " (last invokestatic))
+        sourcefile (str "\nIn: " (first (rest (rest invokestatic))) "\n")]
+        (str linenumber sourcefile)))
 
 ;#########################################
 ;############ Location format  ###########

@@ -1,10 +1,6 @@
 (ns babel.processor
-  (:require  [clojure.tools.nrepl :as repl]
-             [clojure.spec.test.alpha :as stest]
-             [errors.messageobj :as m-obj]
-             [errors.prettify-exception :as p-exc]
-             [corefns.corefns :as cf]
-             [corefns.instrumentfunctionsfortesting]))
+ (:require [errors.messageobj :as m-obj]
+           [errors.prettify-exception :as p-exc]))
 
 ;;an atom that record original error response
 (def recorder (atom {:msg [] :detail []}))
@@ -25,19 +21,60 @@
   [inp-message]
   (swap! recorder update-in [:detail] conj inp-message))
 
-(defn modify-errors
-  "takes a nREPL response, and returns a message with the errors fixed"
-  [inp-message]
+
+(defn get-error
+  [session-number]
+  ((comp #(% #'clojure.core/*e)
+         deref
+         #(get % session-number)
+         deref
+         deref
+        #(get % 'sessions))
+   (ns-interns `nrepl.middleware.session)))
+
+(defn process-message
+  "takes a session number, and returns the adjusted message as a string."
+  [err]
+  (let [errmap (Throwable->map err)
+        throwvia (:via errmap)
+        viacount (count throwvia)
+        errclass (str (:type (first throwvia)))
+        errdata (:data errmap)]
+    (if (and (= "clojure.lang.ExceptionInfo" errclass) (= viacount 1))
+        (p-exc/process-spec-errors (str (.getMessage err)) errdata true)
+        (if (= "clojure.lang.Compiler$CompilerException" errclass)
+          (p-exc/process-macro-errors err errclass (ex-data err))
+          (if (and (= "clojure.lang.ExceptionInfo" errclass) (> viacount 1))
+            (str
+              (->> throwvia
+                   reverse
+                   first
+                   :message
+                   (str (:type (first (reverse throwvia))) " ")
+                   p-exc/process-errors
+                   :msg-info-obj
+                   m-obj/get-all-text)
+              (p-exc/process-stacktrace err))
+            (str
+              (->> err
+                   .getMessage
+                   (str errclass " ")
+                   p-exc/process-errors
+                   :msg-info-obj
+                   m-obj/get-all-text)
+              (p-exc/process-stacktrace err)))))))
+
+(defn modify-errors [inp-message]
   (if (contains? inp-message :err)
-    ;;replace the assoced value with a function call as needed.
-    (assoc inp-message :err
-      (let [err (inp-message :err)
-            processed (p-exc/process-spec-errors err)]
-            (m-obj/get-all-text (:msg-info-obj (do (update-recorder-detail processed)
-                                                   (update-recorder-msg err)
-                                                   processed)))))
-    ;(assoc inp-message :err (str (inp-message :err))) ;; Debugging
-    ;(assoc inp-message :err (str "\n" inp-message "\n" (p-exc/process-spec-errors (inp-message :err)))) ;; Debugging
-    inp-message))
+      (assoc inp-message :err
+             (let [err (get-error (:session inp-message))
+                   processed-error (if err (process-message err) "No detail can be found")]
+                  (do
+                    (update-recorder-detail processed-error)
+                    (update-recorder-msg (:session inp-message));(str err))
+                    ;(inp-message :err))))
+                    processed-error)))
+
+      inp-message))
 
 (println "babel.processor loaded")

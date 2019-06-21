@@ -10,8 +10,8 @@ Paper describing its use and development availible [here](https://github.com/Clo
 Requires Leiningen, and Clojure 1.9.0 or greater.
 Adjust your project.clj to include:
 ```
-:dependencies [[clojure "1.9.0"]
-               [babel-middleware "0.1.3-alpha"]]
+:dependencies [[clojure "1.10.0"]
+               [babel-middleware "0.2.0-alpha"]]
 :repl-options {:nrepl-middleware
               [babel.middleware/interceptor]}
 ```            
