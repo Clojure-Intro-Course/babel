@@ -1,22 +1,24 @@
-(ns loggings.html-log
+(ns logs.html-log
+  (:require
+    [clojure.string :as s :refer [replace]])
   (:use hiccup.core))
 
 ;;counter atom that count the amount of testing units.
-(def counter (atom {:total 1 :partial 1 :log? true}))
+(def counter (atom {:total 0 :partial 0 :log? true}))
 
 ;;reset the counter
 (defn- reset-counter
   []
-  (def counter (atom {:total 1 :partial 1 :log? true})))
+  (reset! counter (atom {:total 0 :partial 0 :log? true})))
 
 ;;sets time with the file name format
 (declare current-time)
-(defn- update-time
+(defn update-time
   []
   (def current-time (.format (java.text.SimpleDateFormat. "MM'_'dd'_'yyyy'_T'HH'_'mm'_'ss") (new java.util.Date))))
 
 ;;preset html log contents
-(defn- html-log-preset
+(defn html-log-preset
   []
   (html [:title "Babel testing log"]
         [:h3 {:style "padding-top:100px"} "Testing log : "]
@@ -64,21 +66,6 @@
                }
                }
              }
-             function hideDetail() {
-               var x = document.getElementsByClassName(\"errorDetail\");
-               if (document.getElementById(\"detail\").checked != true) {
-                 var i;
-                 for (i = 0; i < x.length; i++) {
-                   x[i].style.display='none';
-                 }
-                 } else {
-                 var i;
-                 for (i = 0; i < x.length; i++) {
-                   x[i].style.display='block';
-                 }
-                 }
-
-               }
                function hidenils() {
                  var x = document.getElementsByClassName(\"nilResult\");
                  if (document.getElementById(\"nil\").checked != true) {
@@ -133,14 +120,13 @@
            [:input#nil {:type "checkbox" :checked true :onclick "hidenils()"} [:a {:style "color:#808080;padding-right:20px"} "nil error"]]
            [:input#modified {:type "checkbox" :checked true :onclick "hideModified()"} [:a#modifiedA {:style "color:#00AE0C;padding-right:20px"}"modified error"]]
            [:input#original {:type "checkbox" :checked true :onclick "hideOriginal()"} [:a#originalA {:style "color:#D10101;padding-right:20px"} "original error"]]
-           [:input#detail {:type "checkbox" :checked false :onclick "hideDetail()"} "error detail"]
            [:input#colorBlind {:type "checkbox" :checked false :onclick "colorBlindMode()":style "text-align:right;float:right"} [:a {:style "text-align:right;float:right"}  "Color blind mode"]]]]
         [:div#loadingError {:style "display:block"}
          [:hr]
          [:h4 "Error loading test data!!!"]]))
 
 ;;adds a new log to the category
-(defn- add-category
+(defn add-category
   [file-name]
   (html
     [:p
@@ -157,7 +143,7 @@
         (recur (rest dir)
                (conj coll (str "<p><a href=\"." (subs (str target) 5) "\" class=\"logFiles\"> "(subs (str target) 14)" </a></p>")))))))
 
-;;category html page presetting
+;category html page presetting
 (defn- category-preset
   []
   (html
@@ -169,22 +155,11 @@
     (check-existing-log)))
 
 ;;makes the category html
-(defn- make-category
+(defn make-category
   []
   (do
     (clojure.java.io/make-parents "./log/log_category.html")
     (spit "./log/log_category.html" (category-preset) :append false)))
-
-;;start of txt and html test log, including preset up
-(defn start-l
-  []
-  (do
-    (update-time)
-    (make-category)
-    (spit "./log/log_category.html" (add-category current-time) :append true)
-    (clojure.java.io/make-parents "./log/history/test_logs.html")
-    (spit (str "./log/history/" current-time ".html") (html-log-preset) :append false)
-    (spit "./log/last_test.txt" (str (new java.util.Date) "\n") :append false)))
 
 ;;sets html division for different test files
 (defn- log-division
@@ -198,7 +173,7 @@
 (defn add-l
     [file-name]
     (do
-      (swap! counter assoc :partial 1)
+      (swap! counter assoc :partial 0)
       (spit (str "./log/history/" current-time ".html") (log-division file-name) :append true)))
 
 ;;show '\n' at the end of message
@@ -210,8 +185,7 @@
 ;;content that is going to be put into the log
 (defn- log-content
   [inp-code total modified original]
-  (if
-    (not= modified nil)
+  (if modified
     (str "#" total ":\n\n"
          "code input: " inp-code "\n\n"
          "modified error: " (subs (show-newline modified) 24) "\n\n"
@@ -222,6 +196,7 @@
          "original error: nil\n\n\n")))
 
 ;;saves the content into the txt log file
+;; TODO make consistent with the html log!
 (defn save-log
   [inp-code total modified original]
   (spit "./log/last_test.txt" (log-content
@@ -231,26 +206,18 @@
                                 (subs original 1 (- (.length original) 1)))
                                 :append true))
 
-;;read the exsiting txt log content
-;;this is disabled because it is removed from the middleware
-#_(defn read-log
-   []
-   (println (slurp "./log/last_test.txt")))
-
 ;;define html content
 (defn- html-content
-  [inp-code total partial modified original detail]
-  (if
-    (not= modified nil)
+  [inp-code total partial modified original]
+  (if modified
     (html [:div {:class "nonNilResult"}
            [:hr]
            [:div
              [:p {:style "width:50%;float:left"} "#" partial ":<br />"]
              [:p {:style "width:50%;text-align:right;float:right"} total]]
            [:p {:style "color:#020793"} "code input: " inp-code "<br />"]
-           [:p {:class "modifiedError" :style "color:#00AE0C"} "modified error: " (show-newline modified) "<br />"]
-           [:p {:class "originalError" :style "color:#D10101"} "original error: <br /><br />&nbsp;" original "<br />"]
-           [:p {:class "errorDetail" :style "display:none"} "error detail: " detail "<br /><br />"]])
+           [:p {:class "modifiedError" :style "color:#00AE0C"} "modified error: <br /><br />" modified "<br />"]
+           [:p {:class "originalError" :style "color:#D10101"} "original error: <br /><br />" original "<br />"]])
     (html [:div {:class "nilResult"}
            [:hr]
            [:div
@@ -258,17 +225,22 @@
              [:p {:style "width:50%;text-align:right;float:right"} total]]
            [:p {:style "color:#020793"} "code input: " inp-code "<br />"]
            [:p {:class "nilmodifiedError" :style "color:#808080"} "modified error: nil<br />"]
-           [:p {:class "niloriginalError" :style "color:#808080"} "original error: nil<br />"]
-           [:p {:class "errorDetail" :style "color:#808080;display:none"} "error detail: nil<br /><br />"]])))
+           [:p {:class "niloriginalError" :style "color:#808080"} "original error: nil<br />"]])))
+
+(defn- replace-newlines
+  [str]
+  (if str (s/replace (s/replace str "\r\n" "<br />") "\n" "<br />") ""))
 
 ;;write html content
 (defn write-html
-  [inp-code total partial modified original detail]
+  [inp-code total partial modified original]
+  (let [orig-html (if original (replace-newlines original) "nil")
+        modified-html (if modified (replace-newlines modified) "nil")]
+        ;orig-no-quot-marks (if-not (= orig-html "") (subs orig-html 1 (dec (count orig-html))) "")]
   (spit (str "./log/history/" current-time ".html") (html-content
                                                       inp-code
                                                       total
                                                       partial
-                                                      modified
-                                                      (subs original 1 (- (.length original) 1))
-                                                      detail)
-                                                      :append true))
+                                                      modified-html
+                                                      orig-html)
+                                                      :append true)))
