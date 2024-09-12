@@ -112,6 +112,8 @@
 (s/def :babel.type/any-or-lazy 
   (s/alt :any any?, 
          :lazy :babel.type/lazy))
+(s/def :babel.type/non-empty-seq
+  (s/and :babel.type/seqable (not empty?)))
 (s/def :babel.type/num-or-coll
   (s/alt :arg-one :babel.type/number-or-lazy
          :arg-two (s/cat :number :babel.type/number-or-lazy
@@ -209,7 +211,9 @@
 (s/fdef clojure.core/into
   :args (s/and :babel.arity/zero-to-three
                (s/or :arg-one (s/cat :any (s/? any?))
-                     :arg-two (s/cat :coll (s/nilable :babel.type/coll) :any any?)
+                     :arg-two (s/or :two-coll (s/cat :collection (s/nilable :babel.type/coll) :sequence (s/and seqable? #(seq %)))
+                                    :second-empty (s/cat :any any? :empty (s/and :babel.type/seqable empty?)))
+                    ;;  :arg-two (s/cat :coll (s/nilable :babel.type/coll) :any any?)
                      :arg-three (s/cat :coll (s/nilable :babel.type/coll) :function :babel.type/function-or-lazy :coll any?)
                      )))
 (stest/instrument `clojure.core/into)
