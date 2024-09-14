@@ -208,10 +208,11 @@
                     )))
 (stest/instrument `clojure.core/conj)
 
+;; TODO: add new tests for into spec, since this has been altered
 (s/fdef clojure.core/into
   :args (s/and :babel.arity/zero-to-three
                (s/or :arg-one (s/cat :any (s/? any?))
-                     :arg-two (s/or :two-coll (s/cat :collection (s/nilable :babel.type/coll) :sequence (s/and seqable? #(seq %)))
+                     :arg-two (s/or :two-coll (s/cat :collection (s/nilable :babel.type/coll) :collection (s/and seqable? #(seq %)))
                                     :second-empty (s/cat :any any? :empty (s/and :babel.type/seqable empty?)))
                     ;;  :arg-two (s/cat :coll (s/nilable :babel.type/coll) :any any?)
                      :arg-three (s/cat :coll (s/nilable :babel.type/coll) :function :babel.type/function-or-lazy :coll any?)
