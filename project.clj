@@ -11,8 +11,8 @@
                  [com.rpl/specter "1.1.3"]
                  [hiccup "1.0.5"]]
   :plugins [[lein-expectations "0.0.8"]]
-  :repl-options {:nrepl-middleware
-                 [babel.middleware/interceptor]
+  :repl-options {;; :nrepl-middleware
+                 ;; [babel.middleware/interceptor]
                  :port 7888}
    :injections [(require 'corefns.corefns)]
    :main babel.middleware
