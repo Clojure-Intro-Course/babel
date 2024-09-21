@@ -9,7 +9,7 @@ Paper describing its use and development available [here](https://github.com/Clo
 ## Usage
 Requires Leiningen, and Clojure 1.9.0 or greater.
 Adjust your project.clj to include:
-```
+```clojure
 :dependencies [[clojure "1.10.0"]
                [babel-middleware "0.2.0-alpha"]]
 :repl-options {:nrepl-middleware
