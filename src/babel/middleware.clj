@@ -1,29 +1,13 @@
 (ns babel.middleware
   (:require [babel.processor :as processor]
+            [errors.prettify-exception :as p-exc]
             [nrepl.middleware]
             [nrepl.middleware.caught]
             [clojure.repl]
             [clojure.main :as cm])
-  (:import nrepl.transport.Transport)
   (:gen-class))
 
-(def track (atom {})) ; for debugging purposes
-
-(defn interceptor
-  "applies processor/modify-errors to every response that emerges from the server"
-  [handler]
-  (fn [inp-message]
-    (let [transport (inp-message :transport)]
-          ;dummy (reset! track {:session sess})]
-      (handler (assoc inp-message :transport
-                      (reify Transport
-                        (recv [_this] (.recv transport))
-                        (recv [_this timeout] (.recv transport timeout))
-                        (send [_this msg]     (.send transport msg))))))))
-
-;; sets the appropriate flags on the middleware so it is placed correctly
-(nrepl.middleware/set-descriptor! #'interceptor
-                                                {:expects #{"eval"} :requires #{} :handles {}})
+(def track (atom {})) ; For debugging and testing purposes.
 
 (defn- record-message
   [e]
@@ -59,11 +43,11 @@
                        (processor/location-print-phase-spec data))
               ;; Non-spec message in the print-eval phase:
               (= phase :print-eval-result)
-                  (str (processor/process-message type message)
+                  (str (p-exc/process-errors type message)
                        "\n"
                        (processor/location-print-phase via trace))
               :else
-                  (str (processor/process-message type message)
+                  (str (p-exc/process-errors type message)
                        "\n"
                        (processor/location-non-spec via trace)))))
 
@@ -72,8 +56,8 @@
 (defn setup-exc []
   (set! nrepl.middleware.caught/*caught-fn* #(do
     (let [modified (modify-message %)
-          trace (processor/print-stacktrace %)
-          _ (reset! track {:message (record-message %) :modified modified :trace trace})] ; for logging
+          trace (processor/print-stacktrace %) ; for logging
+          _ (reset! track {:message (record-message %) :modified modified :trace trace})]
     (println modified)
     (if (not= trace "") (println trace) ())))))
 

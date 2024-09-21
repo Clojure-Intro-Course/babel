@@ -26,14 +26,6 @@
   [inp-message]
   (swap! recorder update-in [:detail] conj inp-message))
 
-;; TODO: Remove this and call p-exc/process-message directly where it is used,
-;; also rename the function to this in p-exc
-(defn process-message
-  "Takes a type and a message and returns a string based on the match found in error
-  dictionary"
-  [t m]
-  (p-exc/process-errors t m))
-
 (defn macro-spec?
   "Takes a \"cause\" string and a \"via\" vector from exception data. Returns 
    true if the exception is a macro spec error."
