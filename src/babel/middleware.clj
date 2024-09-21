@@ -1,5 +1,6 @@
 (ns babel.middleware
   (:require [babel.processor :as processor]
+            [errors.prettify-exception :as p-exc]
             [nrepl.middleware]
             [nrepl.middleware.caught]
             [clojure.repl]
@@ -42,11 +43,11 @@
                        (processor/location-print-phase-spec data))
               ;; Non-spec message in the print-eval phase:
               (= phase :print-eval-result)
-                  (str (processor/process-message type message)
+                  (str (p-exc/process-errors type message)
                        "\n"
                        (processor/location-print-phase via trace))
               :else
-                  (str (processor/process-message type message)
+                  (str (p-exc/process-errors type message)
                        "\n"
                        (processor/location-non-spec via trace)))))
 
