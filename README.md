@@ -2,9 +2,9 @@
 
 [![Clojars Project](https://img.shields.io/clojars/v/babel-middleware.svg)](https://clojars.org/babel-middleware)
 
-A proof of concept tool for transforming error message in Clojure into beginner-friendly forms.
+A proof-of-concept tool for transforming Clojure's error messages into beginner-friendly forms.
 Very early in development, and will experience breaking changes.
-Paper describing its use and development available [here](https://github.com/Clojure-Intro-Course/mics2018demo/blob/master/mics2018.pdf "MICS Paper").
+A paper describing its usage and development is available [here](https://github.com/Clojure-Intro-Course/mics2018demo/blob/master/mics2018.pdf "MICS Paper").
 
 ## Usage
 Requires Leiningen, and Clojure 1.9.0 or greater.
