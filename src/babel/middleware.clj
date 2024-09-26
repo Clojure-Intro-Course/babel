@@ -1,7 +1,6 @@
 (ns babel.middleware
   (:require [babel.processor :as processor]
             [errors.prettify-exception :as p-exc]
-            [nrepl.middleware]
             [nrepl.middleware.caught]
             [clojure.repl]
             [clojure.main :as cm])

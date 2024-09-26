@@ -26,6 +26,24 @@ Surface-level knowledge about Clojure's REPL works is beneficial. Practice with 
   - [Babel specs](link)
   - ...
 
+---
+
+# What is Babel?
+
+Babel is a "proof of concept tool for transforming error message in Clojure into beginner-friendly forms." 
+
+It makes use of Clojure's built-in `spec` library 
+
+The goal of Babel is to catch errors and exceptions thrown by the interpreter, analyze their contents, extract the most relevant information for learners of Clojure, and produce a more comprehensive error message for efficient learning and debugging. Babel is a piece of middleware (like an interface between the interpreter and the end user) for nREPL, which is the Clojure REPL that Leiningen, our project manager, runs.
+
+# Motivation
+Most error message output in Clojure is difficult to understand and sort through without detailed knowledge of the language (see the accompanying piece that looks at Clojure errors in more detail). This is partially due to the fact that Clojure (a dynamically-typed language) is built on top of Java (a statically-typed language) and inherits its exception objects, which Clojure must then make sense of using its own data types, and often fails to do well. 
+
+The problems with Clojure's error messages can be seen in its verbose stack traces, type casting, and inconsistent/unclear usage of specs, especially when it comes to anonymous functions and expanding macros. 
+
+This can cause beginners to feel easily confused and overwhelmed, making it harder to spot mistakes and perform debugging. We would like tooling to abstract the details of Clojure error data in a way that is more presentable and comprehensible. Babel is the basis of our approach to this.
+
+
 
 
 [Learn Clojure](https://clojure.org/guides/learn/syntax).
