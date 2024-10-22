@@ -45,9 +45,7 @@ In short, Babel is a tool to transform Clojure error messages to be more beginne
 
 Babel accomplishes this using a high-level `modify-message` function that takes a Clojure exception map, as returned by `*e`, and categorizes the exception according to its Java type and key structure. It then returns a new error message, the processing of which is delegated to various helper functions that deal with specific kinds of exceptions, such as spec errors, or raw Java exceptions.
 
-:question: Our implementation of Babel "hooks" onto a running [Leiningen nREPL](https://nrepl.org/nrepl/usage/server.html#using-leiningen) server. It configures the `:caught` flag in the REPL to call `(modify-message)` upon an error/exception[^1].
-
-[^1]: To be more specific, the function used by Babel, `nrepl.middleware.caught/*caught-fn*`, is a wrapper over the `clojure.main/repl-caught` function, the default procedure for what Clojure does when the REPL returns an error/exception. We use it to tell the REPL to run our function in place of this default. 
+:question: Our implementation of Babel "hooks" onto a running [Leiningen nREPL](https://nrepl.org/nrepl/usage/server.html#using-leiningen) server. Babel implements a wrapper over the `clojure.main/repl-caught` function, the default procedure for what Clojure does when the REPL returns an error/exception. We use it to tell the REPL to run our function in place of this default. When `setup-exc` is called, it configures the `:caught` flag in the REPL to instead call `(modify-message)` upon an error/exception.
 
 ### Motivation
 
@@ -151,7 +149,7 @@ Documentation on all of this is available in the [References and further reading
 
 ### Catching errors and analyzing them
 
-As previously mentioned, `modify-message` is the core error-processing function for Babel. When it is given a map of exception data, it breaks it up into the relevant components, such as its Java class, Clojure exception type (can be one of `CompilerException` or `ExceptionInfo`), present keys, and level of nesting. 
+As previously mentioned, `modify-message` is the core error-processing function for Babel. When it is given a map of exception data, it breaks it up into the relevant components, such as its Java class, Clojure exception type (can be one of `CompilerException` or `ExceptionInfo`), present keys, and level of nesting.
 
 :warning: Some of the specific details described below may change in the future with further refactoring and cleanup.
 
@@ -174,7 +172,36 @@ Since Clojure is a dynamically-typed language, there is a lot that can go wrong 
 
 Fortunately, Clojure's spec library offers an intuitive way to validate the arguments of a function via the `clojure.spec.test.alpha/instrument` function. Using `clojure.spec.alpha/fdef`, we can define allowed behaviors for a function and its arguments, and by instrumenting the spec, we can override the error message thrown to signify when a call to the spec'd function doesn't conform to the spec, before trying to evaluate it.
 
+Babel makes use of these capabilities in its handling of errors caused when core Clojure functions are called with invalid types or number of arguments. For most functions found in `clojure.core`, Babel creates and instruments function specs in the `corefns.clj` file, which are constructed from predefined predicates and specs on sequences (since function arguments are sequential).
+
+These specs produce uniform errors on improper function calls, which are then easily understood by `modify-message`, since spec errors use `clojure.lang.ExceptionInfo` and have more comprehensive error data (as opposed to `clojure.lang.CompilerException`).
+
+### Spec errors via third-party specs
+
+Babel is, to some extent, capable of handling third-party specs as well, in which case the error messages report on the failed predicates.
+
+```clojure
+(require '[clojure.spec.alpha :as s] 
+         '[clojure.spec.test.alpha :as stest])
+
+(defn back-to-back
+  "Concatenates the first string with the reverse of the second string."
+  [s1, s2]
+  (apply str (concat (seq s1) (reverse s2))))
+
+(s/fdef back-to-back
+  :args (s/cat :arg-one #(string? %), :arg-two #(string? %)))
+
+(stest/instrument `back-to-back)
+```
+```
+babel.middleware=> (back-to-back [1 2] [4 3])
+In (back-to-back [1 2] [4 3]) the first argument, which is a vector [1 2], fails a requirement: (clojure.core/fn [%] (clojure.core/string? %))
+```
+
 ### Known problems with Babel's usage of specs
+
+:warning: WIP, information here will relate to the inlining issues and naming schemes for specs. Macros are difficult or nearly impossible to spec correctly.
 
 ### Non-spec errors
 
@@ -192,14 +219,9 @@ Fortunately, Clojure's spec library offers an intuitive way to validate the argu
 - Closer look at Clojure errors:
   - [Phases and ex-data keys](https://clojure.org/reference/repl_and_main#_error_printing)
 
-
----
 ---
 
 # Incomplete junk
-
-NOTE: about how babel/middleware.clj works
-It makes use of `nrepl.middleware.caught`, which is essentially a wrapper function applied to the Clojure REPL's `:caught` option (more on this below), to dynamically modify any error data returned by the server before the user sees them.
 
 
 [Learn Clojure](https://clojure.org/guides/learn/syntax).
