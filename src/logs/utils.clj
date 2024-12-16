@@ -48,9 +48,9 @@
       (-> (repl/client conn 1000)
           (repl/message {:op :eval :code "(deref babel.middleware/track)"})
           doall
-          first
-          :value ; returns a string, not a map
-          read-string)))
+          first 
+          :value ; returns value as a string, not a map
+          read-string))) ; turn the value into a map
 
 (defn reset-error-tracking
   "Resets the atom used for tracking errors."
