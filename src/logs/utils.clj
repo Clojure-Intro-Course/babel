@@ -40,24 +40,30 @@
         in in1
         msg (or message1 message2 message3)
         message (if-not (nil? msg) (s/trim msg))]
-      {:type type :at at :message (or message err-response) :line line :in in}))
+    {:type type :at at :message (or message err-response) :line line :in in}))
+
+#_(fn [x] (println "first:" x) x)
+(defn-  print-return [x] (println "FIRST:" x) x)
+(defn-  print-return-to-file [x] (spit "tracked-errors.txt" (str x "\n") :append true) x)
 
 (defn get-tracked-errors
   []
   (with-open [conn (repl/connect :port server-port)]
-      (-> (repl/client conn 1000)
-          (repl/message {:op :eval :code "(deref babel.middleware/track)"})
-          doall
-          first 
-          :value ; returns value as a string, not a map
-          read-string))) ; turn the value into a map
+    (-> (repl/client conn 1000) ; Creates a client connection (with timeout of 1000ms)
+        (repl/message {:op :eval :code "(deref babel.middleware/track)"}) ; Sends a message to evaluate code
+        doall ; evaluate lazy sequences
+        first ; get the first response 
+        print-return
+        print-return-to-file
+        :value ; returns a string, not a map
+        read-string))) ; convert the string into a map
 
 (defn reset-error-tracking
   "Resets the atom used for tracking errors."
   []
-    (with-open [conn (repl/connect :port server-port)]
-        (-> (repl/client conn 1000)
-            (repl/message {:op :eval :code "(babel.middleware/reset-track)"}))))
+  (with-open [conn (repl/connect :port server-port)]
+    (-> (repl/client conn 1000)
+        (repl/message {:op :eval :code "(babel.middleware/reset-track)"}))))
 
 (defn set-log
   "Sets the :log? value in the atom counter to b. This allows turning logging
@@ -85,23 +91,23 @@
             all-info (assoc {} :original message :modified modified :code code :trace trace)
             _ (reset-error-tracking)
             _ (when (:log? @counter) (write-log all-info))]
-            all-info))))
+        all-info))))
 
 (defn babel-test-message
   "Takes code as a string and returns the error message corresponding to the code
    or nil if there was no error"
   [code]
   (let [{:keys [modified trace]} (get-all-info code)]
-        (if modified
-            (str modified "\n" trace)
-            nil)))
+    (if modified
+      (str modified "\n" trace)
+      nil)))
 
 ;;calls add-l from html-log
 (defn add-log
   "takes a file name and inserts it to the log"
   [file-name]
   (when (:log? @counter)
-      (add-l file-name)))
+    (add-l file-name)))
 
 ;;start of txt and html test log, including preset up
 (defn start-log
