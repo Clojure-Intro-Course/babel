@@ -25,7 +25,7 @@
         (repl/message {:op :eval :code (str "(babel.middleware/setup-exc)" code)})
         doall)))
 
-(defn get-error-parts
+#_(defn get-error-parts
   "Takes the object returned by trap-response and separates it into different
   parts, returned as a map"
   [response]
