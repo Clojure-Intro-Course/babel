@@ -57,14 +57,18 @@
                        :value ; returns a string, not a map
                        read-string) ; convert the string into a map
           ex-triage (try
-                          (-> (repl/client conn 1000)
-                              (repl/message {:op :eval :code "(clojure.main/ex-triage (Throwable->map *e))"}) ; Get ex-triage for the last exception
-                              doall
-                              first
-                              :value
-                              read-string)
+                          (let [triage-response (-> (repl/client conn 1000)
+                                                    (repl/message {:op :eval :code code}) ;create the exception
+                                                    (repl/message {:op :eval :code "(clojure.main/ex-triage (Throwable->map *e))"}) ; Get ex-triage for the last exception
+                                                    doall
+                                                    first
+                                                    :value)]
+                            (println "Triage response:" triage-response)
+                            (read-string triage-response))
                           (catch Exception e
-                            nil))] ; Return nil if there is no exception
+                            (println "Exception during ex-triage:" e)
+                            e))] ; 
+             (println "Ex-triage:" ex-triage)
              (assoc response :original-code code :ex-triage ex-triage))))
 
 (defn reset-error-tracking
