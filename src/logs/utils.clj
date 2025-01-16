@@ -46,17 +46,26 @@
 (defn-  print-return [x] (println "FIRST:" x) x)
 (defn-  print-return-to-file [x] (spit "tracked-errors.txt" (str x "\n") :append true) x)
 
-(defn get-tracked-errors
-  []
+(defn get-tracked-errors [code]
   (with-open [conn (repl/connect :port server-port)]
-    (-> (repl/client conn 1000) ; Creates a client connection (with timeout of 1000ms)
-        (repl/message {:op :eval :code "(deref babel.middleware/track)"}) ; Sends a message to evaluate code
-        doall ; evaluate lazy sequences
-        first ; get the first response 
-        print-return
-        print-return-to-file
-        :value ; returns a string, not a map
-        read-string))) ; convert the string into a map
+    (let [response (-> (repl/client conn 1000) ; Creates a client connection (with timeout of 1000ms)
+                       (repl/message {:op :eval :code "(deref babel.middleware/track)"}) ; Sends a message to evaluate code
+                       doall ; evaluate lazy sequences first
+                       first ; get the first response
+                       print-return
+                       print-return-to-file
+                       :value ; returns a string, not a map
+                       read-string) ; convert the string into a map
+          ex-triage (try
+                          (-> (repl/client conn 1000)
+                              (repl/message {:op :eval :code "(clojure.main/ex-triage (Throwable->map *e))"}) ; Get ex-triage for the last exception
+                              doall
+                              first
+                              :value
+                              read-string)
+                          (catch Exception e
+                            nil))] ; Return nil if there is no exception
+             (assoc response :original-code code :ex-triage ex-triage))))
 
 (defn reset-error-tracking
   "Resets the atom used for tracking errors."
@@ -79,6 +88,9 @@
         _ (swap! counter update-in [:partial] inc)]
     (write-html code (:total @counter) (:partial @counter) (str modified "\n" trace) original)))
 
+(defn stringify-symbols [input]
+  (s/replace input #":symbol\s+([^\s,}]+)" ":symbol \"$1\""))
+
 (defn get-all-info
   "Executes code and returns a map with the error part of the response
   (separated into :type, :at, :message, :line, and :in fields - some may
@@ -87,10 +99,13 @@
   [code]
   (let [_ (trap-response code)]
     (when (:log? @counter)
-      (let [{:keys [message modified trace]} (get-tracked-errors)
-            all-info (assoc {} :original message :modified modified :code code :trace trace)
+      (let [{:keys [message modified trace original-code ex-triage]} (get-tracked-errors code)
+            all-info (assoc {} :original message :modified modified :code code :trace trace :original-code original-code :ex-triage ex-triage)
             _ (reset-error-tracking)
-            _ (when (:log? @counter) (write-log all-info))]
+            _ (when (:log? @counter) (write-log all-info))
+            log-content (pr-str (select-keys all-info [:original-code :ex-triage]))
+            processed-log-content (stringify-symbols log-content)]
+        (spit (str "./log/code-ex-triage/" current-time "-log-file.txt") processed-log-content :append true)
         all-info))))
 
 (defn babel-test-message
