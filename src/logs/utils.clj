@@ -25,7 +25,7 @@
         (repl/message {:op :eval :code (str "(babel.middleware/setup-exc)" code)})
         doall)))
 
-(defn get-error-parts
+#_(defn get-error-parts
   "Takes the object returned by trap-response and separates it into different
   parts, returned as a map"
   [response]
@@ -46,7 +46,7 @@
   []
   (with-open [conn (repl/connect :port server-port)]
       (-> (repl/client conn 1000)
-          (repl/message {:op :eval :code "(deref babel.middleware/track)"})
+          (repl/message {:op :eval :code "(deref babel.middleware/track)"}) ; dereferences the track atom, which holds the tracked errors
           doall
           first
           :value ; returns a string, not a map
@@ -81,10 +81,13 @@
   [code]
   (let [_ (trap-response code)]
     (when (:log? @counter)
-      (let [{:keys [message modified trace]} (get-tracked-errors)
+      (let [{:keys [message modified trace exception]} (get-tracked-errors) ;exc-via removed
             all-info (assoc {} :original message :modified modified :code code :trace trace)
             _ (reset-error-tracking)
-            _ (when (:log? @counter) (write-log all-info))]
+            _ (when (:log? @counter) (write-log all-info))
+            ;_ (println (str "exception: " exception "\n code: " code))
+            ;_ (println (str "exc-via: " exc-via))
+            _ (spit (str "./log/code-ex-triage/" current-time "-log-file.txt") (str "code: " code "\n exception: " exception) :append true)]
             all-info))))
 
 (defn babel-test-message
