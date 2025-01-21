@@ -121,7 +121,10 @@
        (sp/select [sp/ALL (sp/pred #(= (:in %) in)) :pred])
        (s/join " or ")))
 
-
+;; TODO: labeling
+;; We are reworking the output of all error processing from Babel to provide us with
+;; vectors of labeled data from the error itself rather than just outputting a single string.
+;; This will allow us to do HTML formatting/markup on user interfaces for error viewers.
 (defn babel-spec-message
   "Takes data representation of a Babel spec error 
    (i.e. as returned by Throwable->map), 
@@ -190,6 +193,10 @@
                (d/anon-fn-handling print-val)
                " instead."))))
 
+;; TODO: labeling
+;; We are reworking the output of all error processing from Babel to provide us with
+;; vectors of labeled data from the error itself rather than just outputting a single string.
+;; This will allow us to do HTML formatting/markup on user interfaces for error viewers.
 (defn third-party-spec
   "Handles spec that's not from babel: takes the exc-data
   and returns the message as a string."
@@ -278,12 +285,17 @@
                        #(s/starts-with? (str %) babel-ns)]
                       p)))
 
-
+;; TODO: labeling
+;; We are reworking the output of all error processing from Babel to provide us with
+;; vectors of labeled data from the error itself rather than just outputting a single string.
+;; This will allow us to do HTML formatting/markup on user interfaces for error viewers.
 (defn spec-message
  "Takes exception data and calls either babel spec processing or third-party spec
   processing."
  [data]
  (let [{probs :clojure.spec.alpha/problems} data]
+ ;; We are doing this labeling refactoring for each of these three functions 
+ ;; on an individual basis vvv
  (if (babel-fn-spec? probs)
      (babel-spec-message data)
      (third-party-spec data))))
@@ -349,6 +361,7 @@
      ;; Usage of (seq? %) here is equivalent to (not (empty? %))
      (and (seq via-lasts) (every? #(or (re-find #"param-list" %) (re-find #"param+body" %)) via-lasts))))
 
+;; TODO: labeling
 (defn- let-macros
   "Takes parts of the spec message for let and related macros and returns an error message as a string"
   [fn-name value problems]
@@ -364,6 +377,7 @@
         "):\n"
         (process-paths-macro problems)))
 
+;; TODO: labeling
 (defn- defn-macros
   "Takes parts of the spec message for defn and defn- and returns an error message as a string"
   [fn-name value problems]
@@ -422,6 +436,7 @@
                                      value))
               :else "Placeholder message for defn")))
 
+;; TODO: labeling
 (defn- fn-macros
   "Takes parts of the spec message for fn and returns an error message as a string"
   [fn-name value problems]
@@ -506,7 +521,7 @@
                                               value))
               :else (str error-name "Placeholder for a message for fn"))))
 
-
+;; TODO: labeling
 (defn spec-macro-message
   "Takes the cause and data of a macro spec failure and returns the description of
    the problem as a string"
@@ -560,6 +575,7 @@
                          "):\n"
                          (process-paths-macro problems)))))
 
+;; TODO: labeling
  (defn invalid-sig-message
    "Takes the cause and symbol of an invalid signature macroexpansion error and
     returns the description of the problem as a string"

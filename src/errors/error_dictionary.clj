@@ -5,15 +5,24 @@
 ;; A vector of error dictionaries from the most specific one to the most general one.
 ;; Order matters because the vector is searched from top to bottom.
 
+;; TODO: labeling
+;; We are reworking the output of all error processing from Babel to provide us with
+;; vectors of labeled data from the error itself rather than just outputting a single string.
+;; This will allow us to do HTML formatting/markup on user interfaces for error viewers.
+
 (def error-dictionary
   [
    ;#############################
    ;### Class Cast Exceptions ###
    ;#############################
 
+   ;; e.g.
    {:key :class-cast-exception
     :class "ClassCastException"
+    ;; capture groups from this :match get used in :fn
     :match (beginandend "Cannot cast (\\S*) to (\\S*)")
+    ;; vv instead of outputting (str) here, need vector of labeled data from (get-type) and
+    ;; similar functions
     :fn (fn [matches] (str "Expected "
                                            (get-type (nth matches 2)) ", but "
                                            (get-type (nth matches 1)) " was given instead.\n"))}
@@ -67,6 +76,7 @@
     :match (beginandend "Vector arg to map conj must be a pair")
     :fn (fn [matches] (str "Vectors added to a map must consist of two elements: a key and a value.\n"))}
 
+    ;; TODO: check up on this one
     {:key :illegal-argument-cannot-convert-type
     ;spec
     :class "IllegalArgumentException"
