@@ -80,7 +80,7 @@
         log-content (slurp log-file)]
     (if (.endsWith log-content "]")
       (spit log-file (str (subs log-content 0 (dec (count log-content))) ", " (assoc {} :code code :exception exception :ex-triage ex-triage) "]") :append false) ;removes ] at end
-      (spit log-file (str (assoc {} :code code :exception exception) "]") :append true))))
+      (spit log-file (str (assoc {} :code code :exception exception :ex-triage ex-triage) "]") :append true))))
   
 
 (defn get-all-info
