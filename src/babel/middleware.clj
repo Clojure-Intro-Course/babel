@@ -57,7 +57,7 @@
   (set! nrepl.middleware.caught/*caught-fn* #(do
     (let [modified (modify-message %)
           trace (processor/print-stacktrace %) ; for logging
-          _ (reset! track {:message (record-message %) :modified modified :trace trace :exception (subs (pr-str %) 7)})] ;:exc-via (:via (Throwable->map %))
+          _ (reset! track {:message (record-message %) :modified modified :trace trace :exception (subs (pr-str %) 7) :ex-triage (pr-str (clojure.main/ex-triage (Throwable->map %)))})]
     (println modified)
     (if (not= trace "") (println trace) ())))))
 
