@@ -23,6 +23,8 @@ Two tasks that make a good starting point:
 2. Think of what that vector is actually (for real) going to look like.
 (John should also look into this because he is ultimately the one implementing it)
 
+STUFF WE FOUND FROM ERROR DICTIONARIES
+
 Some of the stuff we will be labeling includes:
 - Definitely types (are we distinguishing between kinds of types? general, specific, etc.)
     - expected/actual types
@@ -33,6 +35,8 @@ Some of the stuff we will be labeling includes:
 
 - Definitely values/instances (as opposed to types)
     - keywords
+
+<the various names>
 
 - Collection names (such as:)
     - maps
@@ -45,7 +49,16 @@ Some of the stuff we will be labeling includes:
 
 - Symbols, which may just be names
 
+- Resource/file names
+
+</the various names>
+
+- literals (all fall under LispReaderExceptions)
+    - also arg literals (IllegalStateExceptions)
+
 - numbers (as a part of syntax requirements, i.e. arity)
+
+- Delimiters, mainly unmatched ones
 
 - Expressions (which are code; more common in spec)
     - please do not try to break down expressions, we don't need to
@@ -54,3 +67,5 @@ Some of the stuff we will be labeling includes:
 
 - Native Clojure/Java exception messages
     - Names of exceptions themselves?
+
+STUFF WE FOUND FROM SPECS (if any): To be seen

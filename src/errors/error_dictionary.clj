@@ -483,7 +483,7 @@
      :match (beginandend "arg literal must be %, %& or %integer")
      :fn (fn [matches] (str "% can only be followed by & or a number.\n"))}
 
-    {:key :illegal-state-validater
+    {:key :illegal-state-validator
      :class "IllegalStateException"
      :match (beginandend "Invalid reference state  (\\S*)\\.validate")
      :fn (fn [matches] (str "IllegalState: failed validation.\n"))}
