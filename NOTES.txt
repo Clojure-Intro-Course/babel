@@ -1,0 +1,56 @@
+One example of labeling that we do absolutely need:
+
+Just a string of the error message; i.e., just the text.
+
+We should start by first converting everything to a vector of a single map,
+which just contains the output text for the middleware. Then, start breaking it
+apart.
+
+We need to make it work with the REPL first, which means that we need to guarantee that
+we get the original error message output as a string for the middleware to print out.
+
+We are starting by just catching all places where this process needs to occur.
+This needs to essentially be testable, i.e., the high-level functions don't really know
+that we changed much.
+
+---
+
+Two tasks that make a good starting point:
+
+1. Make a superficial vector that works with all of the string info we already have.
+(The debugging is going to be really scary)
+
+2. Think of what that vector is actually (for real) going to look like.
+(John should also look into this because he is ultimately the one implementing it)
+
+Some of the stuff we will be labeling includes:
+- Definitely types (are we distinguishing between kinds of types? general, specific, etc.)
+    - expected/actual types
+
+- Definitely plaintext 
+    - pay attention to "terms" within plaintext, such as `type`, `constructor`, `if`,
+      (i.e. you cannot use the same **key** in a **hashmap** twice)
+
+- Definitely values/instances (as opposed to types)
+    - keywords
+
+- Collection names (such as:)
+    - maps
+    - vectors ?
+    - lists ?
+
+- Function names
+
+- Class names may possibly be different from other names
+
+- Symbols, which may just be names
+
+- numbers (as a part of syntax requirements, i.e. arity)
+
+- Expressions (which are code; more common in spec)
+    - please do not try to break down expressions, we don't need to
+
+- Predicates? Assert condition(?)
+
+- Native Clojure/Java exception messages
+    - Names of exceptions themselves?

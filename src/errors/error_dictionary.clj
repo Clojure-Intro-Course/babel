@@ -136,7 +136,7 @@
 
     {:key :no-matching-clause
     :class "IllegalArgumentException"
-    :match (beginandend #"No matching clause: (.*)")
+    :match (beginandend #"No matching clause: (.*)") ; value, not expr
     :fn (fn [matches] (str "The 'case' input "
                                           (nth matches 1)
                                           " didn't match any of the options.\n"))}
@@ -383,13 +383,13 @@
     :match (beginandend "Reader tag must be a symbol")
     :fn (fn [matches] (str "# must be followed by a symbol.\n"))}
 
-    {:key :invalid-tolken-error
+    {:key :invalid-token-error
     :class "RuntimeException"
     :match (beginandend "Invalid token: (\\S*)")
     :fn (fn [matches] (str (nth matches 1)
                                           " is an invalid token.\n"))}
 
-    {:key :syntax-error-cant-specifiy-over-20-args
+    {:key :syntax-error-cant-specify-over-20-args
     :class "RuntimeException"
     :match (beginandend "Can't specify more than 20 params")
     :fn (fn [matches] (str "A function may not take more than 20 parameters.\n" ))}
