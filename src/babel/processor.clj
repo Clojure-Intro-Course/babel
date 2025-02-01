@@ -165,7 +165,6 @@
     ;; TODO: Look into trying to trigger this case, creating an inconsistent spec for arity
           ;; Case: the spec relates to a babel/length predicate. In this case, the user
           ;; has entered the wrong number of arguments for the function.
-          ;; TODO: update the regex here to match namespace correctly. also, look into a better function
           (re-matches #"corefns\.corefns/b-length(.*)" (str pred))
           (str "Wrong number of arguments in (" 
                fn-name 
@@ -178,7 +177,6 @@
                " but was given "
                (if (or (nil? val) (= (count val) 0)) "no" (d/number-word (count val)))
                (if (= (count val) 1) " argument." " arguments.")) 
-          
           :else
           (str "The " 
                (d/arg-str arg-number) 
@@ -375,7 +373,7 @@
             ""
             (str " " (d/print-macro-arg (rest value) :no-parens)))
         "):\n"
-        (process-paths-macro problems)))
+        (process-paths-macro problems))) ; for labeling: "problems" are predicates
 
 ;; TODO: labeling
 (defn- defn-macros
@@ -388,7 +386,7 @@
         error-name (str "Syntax problems with (" fn-name (u/with-space-if-needed val-str) "):\n")]
         (cond (u/has-match? probs-grouped {:path [:fn-name]})
                    (str error-name  (u/missing-name (:val (first problems))))
-              ;; Multi-arity defn fails with a non-informtive spec failure
+              ;; Multi-arity defn fails with a non-informative spec failure
               (= n 0) (str error-name
                            "Unexpected element(s) outside of the first clause: "
                            (d/print-macro-arg (rest (drop-while #(not (seq? %)) value)) :no-parens))

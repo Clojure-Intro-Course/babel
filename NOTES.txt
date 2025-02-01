@@ -23,18 +23,20 @@ Two tasks that make a good starting point:
 2. Think of what that vector is actually (for real) going to look like.
 (John should also look into this because he is ultimately the one implementing it)
 
-STUFF WE FOUND FROM ERROR DICTIONARIES
 
 Some of the stuff we will be labeling includes:
 - Definitely types (are we distinguishing between kinds of types? general, specific, etc.)
     - expected/actual types
+
 
 - Definitely plaintext 
     - pay attention to "terms" within plaintext, such as `type`, `constructor`, `if`,
       (i.e. you cannot use the same **key** in a **hashmap** twice)
 
 - Definitely values/instances (as opposed to types)
+    - primarily values in spec
     - keywords
+
 
 <the various names>
 
@@ -57,15 +59,15 @@ Some of the stuff we will be labeling includes:
     - also arg literals (IllegalStateExceptions)
 
 - numbers (as a part of syntax requirements, i.e. arity)
+    - (does not include numbers spelled out in English, these are part of text)
+    - (see length-ref in processor, mainly spec related)
 
 - Delimiters, mainly unmatched ones
 
 - Expressions (which are code; more common in spec)
     - please do not try to break down expressions, we don't need to
 
-- Predicates? Assert condition(?)
+- Predicates, Assert condition(?)
 
 - Native Clojure/Java exception messages
     - Names of exceptions themselves?
-
-STUFF WE FOUND FROM SPECS (if any): To be seen
