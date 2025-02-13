@@ -51,14 +51,22 @@
                        "\n"
                        (processor/location-non-spec via trace)))))
 
+(defn- tagged->str 
+  "Takes a vector of tag-content pairs and returns contents 
+   as a single string, ignoring tags."
+  [[[t v] & xs :as all]]
+  (if all (str v (tagged->str xs)) ""))
+
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
 (defn setup-exc []
   (set! nrepl.middleware.caught/*caught-fn* #(do
     (let [modified (modify-message %)
+          tagged (if (string? modified) [[:txt modified]] modified)
+          untagged (tagged->str tagged) ; splitting it up like this lets us do things gradually
           trace (processor/print-stacktrace %) ; for logging
-          _ (reset! track {:message (record-message %) :modified modified :trace trace})]
-    (println modified)
-    (if (not= trace "") (println trace) ())))))
+          _ (reset! track {:message (record-message %) :modified untagged :trace trace})]
+          (println untagged)
+    (if (not= trace "") (println trace) ()))))) 
 
 (defn reset-track [] (reset! track {}))

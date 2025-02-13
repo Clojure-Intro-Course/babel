@@ -13,6 +13,8 @@ We are starting by just catching all places where this process needs to occur.
 This needs to essentially be testable, i.e., the high-level functions don't really know
 that we changed much.
 
+(We are using vectors of pairs now rather than maps.)
+
 ---
 
 Two tasks that make a good starting point:
