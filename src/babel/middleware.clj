@@ -51,18 +51,35 @@
                        "\n"
                        (processor/location-non-spec via trace)))))
 
+(defn split-exception [ex]
+  "split the exception into its keys"
+  (let [{:keys [cause trace via phase]} (Throwable->map ex)
+        via-details (map #(select-keys % [:at :message :type]) via)]
+    {:cause (pr-str cause) :trace (pr-str trace) :via (pr-str via-details) :phase (pr-str phase)}))
+
+(defn split-triage [ex]
+  "split the ex-triage into its keys"
+  (let [triage-map (clojure.main/ex-triage (Throwable->map ex))
+        {:keys [clojure.error/class clojure.error/line clojure.error/cause clojure.error/symbol clojure.error/source clojure.error/spec clojure.error/phase]} triage-map]
+    {:class class :line line :cause cause :symbol symbol :source source :spec (or (pr-str spec) {}) :phase phase}))
+
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
 (defn setup-exc []
   (set! nrepl.middleware.caught/*caught-fn* #(do
     (let [modified (modify-message %)
           trace (processor/print-stacktrace %) ; for logging
+          split-exc (split-exception %)
+          split-tri (split-triage %)
           _ (reset! track {
             :message (record-message %) 
             :modified modified 
             :trace trace
-            :exception (pr-str (Throwable->map %))
-            :ex-triage (subs(pr-str (clojure.main/ex-triage (Throwable->map %))) 15)})]
+            ; :exception (pr-str (Throwable->map %))
+            :exception-details (pr-str split-exc)
+            ; :ex-triage (subs(pr-str (clojure.main/ex-triage (Throwable->map %))) 15)
+            :triage-details (pr-str split-tri)
+            })]            
     (println modified)
     (if (not= trace "") (println trace) ())))))
 
