@@ -27,49 +27,64 @@ Two tasks that make a good starting point:
 
 
 Some of the stuff we will be labeling includes:
+
+** :type
 - Definitely types (are we distinguishing between kinds of types? general, specific, etc.)
     - expected/actual types
 
-
-- Definitely plaintext 
+** :txt
+- Definitely plaintext
     - pay attention to "terms" within plaintext, such as `type`, `constructor`, `if`,
       (i.e. you cannot use the same **key** in a **hashmap** twice)
 
+** :val
 - Definitely values/instances (as opposed to types)
-    - primarily values in spec
-    - keywords
-
+    - primarily values in spec (number, string, etc.)
+      (e.g. "Expected a map but got a number **5** instead")
+    - keywords [? to be clarified]
 
 <the various names>
 
+** :coll
 - Collection names (such as:)
     - maps
     - vectors ?
     - lists ?
 
-- Function names
+** :fn
+- Function names (*)
 
-- Class names may possibly be different from other names
+** :class
+- Class names, may possibly be different from other names (*)
+    - NOT exception classes.
 
+** :symbol
 - Symbols, which may just be names
 
+** :file
 - Resource/file names
+
+** :ex-class
+- Native Clojure/Java exception messages
+    - names of their classes, such as NullPointerException
 
 </the various names>
 
+** :literal
 - literals (all fall under LispReaderExceptions)
     - also arg literals (IllegalStateExceptions)
 
+** :arity
 - numbers (as a part of syntax requirements, i.e. arity)
     - (does not include numbers spelled out in English, these are part of text)
     - (see length-ref in processor, mainly spec related)
 
+** :delimiter
 - Delimiters, mainly unmatched ones
 
+** :code
 - Expressions (which are code; more common in spec)
     - please do not try to break down expressions, we don't need to
 
+** :pred
 - Predicates, Assert condition(?)
-
-- Native Clojure/Java exception messages
-    - Names of exceptions themselves?
