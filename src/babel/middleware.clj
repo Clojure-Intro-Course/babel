@@ -76,9 +76,9 @@
             :modified modified 
             :trace trace
             ; :exception (pr-str (Throwable->map %))
-            :exception-details (pr-str split-exc)
+            :exception (pr-str split-exc)
             ; :ex-triage (subs(pr-str (clojure.main/ex-triage (Throwable->map %))) 15)
-            :triage-details (pr-str split-tri)
+            :ex-triage (pr-str split-tri)
             })]            
     (println modified)
     (if (not= trace "") (println trace) ())))))

@@ -9,5 +9,5 @@
   ;; create a new map with with strings converted 
   (assoc {}
          :code (:code map)
-         :exception-details (read-string (:exception-details map))
-         :triage-details (read-string (:triage-details map))))
+         :exception (read-string (:exception map))
+         :ex-triage (read-string (:ex-triage map))))

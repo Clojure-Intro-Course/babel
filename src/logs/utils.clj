@@ -73,14 +73,14 @@
         _ (swap! counter update-in [:partial] inc)]
     (write-html code (:total @counter) (:partial @counter) (str modified "\n" trace) original)))
 
-(defn log-code-exceptions [code exception-details triage-details]
+(defn log-code-exceptions [code exception ex-triage]
   "Logs code and exception to ./log/code-ex-triage/<current-time>-log-file.txt"
   ; if the log file ends with a "]" it will remove it then add the next log entry
   (let [log-file (str "./log/code-ex-triage/" current-time "-log-file.txt")
         log-content (slurp log-file)]
     (if (.endsWith log-content "]")
-      (spit log-file (str (subs log-content 0 (dec (count log-content))) ", " (assoc {} :code code  :exception-details exception-details :triage-details triage-details) "]") :append false) ;removes ] at end
-      (spit log-file (str (assoc {} :code code :exception-details exception-details :triage-details triage-details) "]") :append true))))
+      (spit log-file (str (subs log-content 0 (dec (count log-content))) ", " (assoc {} :code code  :exception exception :ex-triage ex-triage) "]") :append false) ;removes ] at end
+      (spit log-file (str (assoc {} :code code :exception exception :ex-triage ex-triage) "]") :append true))))
   
 
 (defn get-all-info
@@ -91,11 +91,11 @@
   [code]
   (let [_ (trap-response code)]
     (when (:log? @counter)
-      (let [{:keys [message modified trace exception-details triage-details]} (get-tracked-errors) ;exc-via removed
+      (let [{:keys [message modified trace exception ex-triage]} (get-tracked-errors) ;exc-via removed
             all-info (assoc {} :original message :modified modified :code code :trace trace)
             _ (reset-error-tracking)
             _ (when (:log? @counter) (write-log all-info))
-            _ (log-code-exceptions code exception-details triage-details)]
+            _ (log-code-exceptions code exception ex-triage)]
             all-info))))
 
 (defn babel-test-message
