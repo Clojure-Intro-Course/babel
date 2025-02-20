@@ -55,7 +55,7 @@
   "split the exception into its keys"
   (let [{:keys [cause trace via phase]} (Throwable->map ex)
         via-details (map #(select-keys % [:at :message :type]) via)]
-    {:cause cause :via (pr-str via-details) })) ; removed :trace (pr-str trace) and phase :phase (pr-str phase)
+    {:cause cause :via via-details})) ; removed :trace (pr-str trace) and phase :phase (pr-str phase)
 
 (defn split-triage [ex]
   "split the ex-triage into its keys"
