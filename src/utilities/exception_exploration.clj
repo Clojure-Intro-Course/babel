@@ -14,8 +14,6 @@
          :exception (when-let [ex (:exception map)] (read-string ex)) ;; when-let because some :exception and :ex-triage are nil
          :ex-triage (when-let [triage (:ex-triage map)] (read-string triage))))
 
-;;(require '[utilities.exception_exploration :as exploration])
-;;(exploration/parse-logs "ex.txt")
 (defn parse-logs
   "parses the babel log output and saves it for the other functions. The file is the name of the log you want to parse in the code-ex-triage file"
   [file]
@@ -29,9 +27,6 @@
           (into [] (map read-log logs))))
       (println "File not found:" file-path))))
 
-;; (def parsed-logs (exploration/parse-logs "ex.txt"))
-;; (exploration/filter-by-phase parsed-logs :macro-syntax-check)
-;; (count (exploration/filter-by-phase parsed-logs :macro-syntax-check)) => 189
 (defn get-phase
   "get the phase of the exception in a log"
   [log]
@@ -43,12 +38,15 @@
   (filter #(= phase
               (get-phase %)) logs))
 
-;; log(map) -> number
 (defn get-level-nesting
   "get the level of nesting in an exception log"
   [log]
   (count (get-in log [:exception :via])))
-;; (exploration/get-level-nesting (parsed-logs 22)) => 3
+
+(defn get-nested-types
+  "get the types of errors in the :at :type of an error"
+  [log]
+  (map :type (get-in log [:exception :via])))
 
 ;; logs(vector of maps) -> logs(vector of maps)
 (defn filter-by-nesting
@@ -61,4 +59,33 @@
 ;; logs (vector of maps), filter option, filter option/value -> logs (vector of maps)
 ;; (filter-by
 ;;  ""
-;;  [])
+;;  [logs fn fn-input])
+
+
+;; [logs, map of :kw and vals] -> logs
+;; (defn filter-search
+;;   ""
+;;   [])
+
+;; --- Function Example Uses ---
+;;
+;; - Setup -
+;; needs the original "ex.txt" file for tests
+;; (require '[utilities.exception_exploration :as exploration])
+;; (def parsed-logs (exploration/parse-logs "ex.txt"))
+;; (def log1 (parsed-logs 22))
+;;  --
+;; 
+;; - Using Functions -
+;; (exploration/parse-logs "ex.txt")
+;; (exploration/filter-by-phase parsed-logs :macro-syntax-check)
+;; (exploration/get-nested-types log1) => 
+
+;; --
+;; 
+;; - Tests -
+;; (count (exploration/filter-by-phase parsed-logs :macro-syntax-check)) => 189
+;; (exploration/get-level-nesting (parsed-logs 22)) => 3
+;; (count (exploration/filter-by-nesting parsed-logs 3)) => 8
+;; (count (exploration/get-nested-types log1)) => 3
+;; (exploration/get-nested-types log1) => (clojure.lang.ExceptionInfo clojure.lang.LispReader$ReaderException java.lang.RuntimeException)
