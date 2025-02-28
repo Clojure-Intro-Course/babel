@@ -26,7 +26,7 @@
         (println (str "read `"file-path "` succesfully"))
         (let [logs (read-string log-content)]
           (println "mapping `read-log` onto `logs`")
-          (map read-log logs)))
+          (into [] (map read-log logs))))
       (println "File not found:" file-path))))
 
 ;; (def parsed-logs (exploration/parse-logs "ex.txt"))
@@ -39,3 +39,22 @@
   (filter #(= phase
               (get-in % [:ex-triage :phase])) logs))
 
+;; log(map) -> number
+(defn get-level-nesting
+  "get the level of nesting in an exception log"
+  [log]
+  (count (get-in log [:exception :via])))
+;; (exploration/get-level-nesting (parsed-logs 22)) => 3
+
+;; logs(vector of maps) -> logs(vector of maps)
+(defn filter-by-nesting
+  ""
+  [logs level]
+  (filter #(= level
+              (get-level-nesting %)) logs))
+
+;; Generallized filter fn
+;; logs (vector of maps), filter option, filter option/value -> logs (vector of maps)
+;; (filter-by
+;;  ""
+;;  [])
