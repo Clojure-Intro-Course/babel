@@ -32,12 +32,16 @@
 ;; (def parsed-logs (exploration/parse-logs "ex.txt"))
 ;; (exploration/filter-by-phase parsed-logs :macro-syntax-check)
 ;; (count (exploration/filter-by-phase parsed-logs :macro-syntax-check)) => 189
+(defn get-phase
+  "get the phase of the exception in a log"
+  [log]
+  (get-in log [:ex-triage :phase]))
 
 (defn filter-by-phase 
   "Takes a vector of (log) maps and returns the logs that have the phase that is input"
   [logs phase]
   (filter #(= phase
-              (get-in % [:ex-triage :phase])) logs))
+              (get-phase %)) logs))
 
 ;; log(map) -> number
 (defn get-level-nesting
