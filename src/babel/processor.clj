@@ -166,17 +166,16 @@
           ;; Case: the spec relates to a babel/length predicate. In this case, the user
           ;; has entered the wrong number of arguments for the function.
           (re-matches #"corefns\.corefns/b-length(.*)" (str pred))
-          (str "Wrong number of arguments in (" 
-               fn-name 
-               " " 
-               function-args-val 
-               "): the function " 
-               fn-name 
-               " expects "
-               (length-ref (keyword (d/get-function-name (str (first via)))))
-               " but was given "
-               (if (or (nil? val) (= (count val) 0)) "no" (d/number-word (count val)))
-               (if (= (count val) 1) " argument." " arguments.")) 
+          (vector [:txt "Wrong number of arguments in "] 
+               [:code (str "(" fn-name " " function-args-val ")")] 
+               [:txt ": the function "] 
+               [:fn fn-name] 
+               [:txt (str " expects "
+                      (length-ref (keyword (d/get-function-name (str (first via)))))
+                      " but was given "
+                      (if (or (nil? val) (= (count val) 0)) "no" 
+                          (d/number-word (count val)))
+                      (if (= (count val) 1) " argument." " arguments."))]) 
           :else
           (str "The " 
                (d/arg-str arg-number) 

@@ -13,6 +13,18 @@
   [e]
   (cm/ex-str (cm/ex-triage (Throwable->map e))))
 
+(defn- str-ex->vec
+  "Takes processed exception messages as produced in modify-message and returns
+   a tagged vector of pairs.
+   If the first argument is already tagged, calls conj on x and tags remaining xs.
+   If the first argument is a string, then tags all arguments.
+   We are assuming that the first case implies remaining arguments are all strings.
+   This may change in the future as we start tagging things like location/stack keywords."
+  [x & xs]
+  (if (vector? x) 
+      (into x (map #(vector :txt %) xs))
+      (map #(vector :txt %) (into [x] xs))))
+
 (defn- modify-message
   "TODO: Write some great docstring explaining what all of this does."
   [exc]
@@ -34,7 +46,7 @@
                         (processor/location-macro-spec via))
               (or (and exc-info? (not nested?))
                   (and compiler-exc? (= clojure.lang.ExceptionInfo (resolve type))))
-                  (str (processor/spec-message data)
+                  (str-ex->vec (processor/spec-message data)
                        "\n"
                        (processor/location-function-spec data))
               (and exc-info? (= clojure.lang.ExceptionInfo (resolve type)))
@@ -47,7 +59,7 @@
                        "\n"
                        (processor/location-print-phase via trace))
               :else
-                  (str (p-exc/process-errors type message)
+                  (str-ex->vec (p-exc/process-errors type message)
                        "\n"
                        (processor/location-non-spec via trace)))))
 
@@ -62,11 +74,13 @@
 (defn setup-exc []
   (set! nrepl.middleware.caught/*caught-fn* #(do
     (let [modified (modify-message %)
+          ;; problem: modify-message is turning modified into a string, always
           tagged (if (string? modified) [[:txt modified]] modified)
           untagged (tagged->str tagged) ; splitting it up like this lets us do things gradually
           trace (processor/print-stacktrace %) ; for logging
           _ (reset! track {:message (record-message %) :modified untagged :trace trace})]
           (println untagged)
-    (if (not= trace "") (println trace) ()))))) 
+          ; (println (type modified))
+    (if (not= trace "") (println trace) ())))))
 
 (defn reset-track [] (reset! track {}))
