@@ -55,11 +55,10 @@
   (filter #(= level
               (get-level-nesting %)) logs))
 
-;; Generallized filter fn
-;; logs (vector of maps), filter option, filter option/value -> logs (vector of maps)
-;; (filter-by
-;;  ""
-;;  [logs fn fn-input])
+(defn get-nested-types
+  "get the types of errors in the :at :type of an error"
+  [log]
+  (vec (map :type (get-in log [:exception :via]))))
 
 
 ;; [logs, map of :kw and vals] -> logs
