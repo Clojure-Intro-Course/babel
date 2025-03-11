@@ -20,12 +20,12 @@
   "parses the babel log output and saves it for the other functions. The file is the name of the log you want to parse in the code-ex-triage file"
   [file]
   (let [file-path (str "./log/code-ex-triage/" file)]
-    (println "Attempting to read file at path:" file-path)
+    ;; (println "Attempting to read file at path:" file-path)
     (if (.exists (io/file file-path))
       (let [log-content (slurp file-path)]
         (println (str "read `"file-path "` succesfully"))
         (let [logs (read-string log-content)]
-          (println "mapping `read-log` onto `logs`")
+          ;; (println "mapping `read-log` onto `logs`")
           (into [] (map read-log logs))))
       (println "File not found:" file-path))))
 
@@ -119,8 +119,14 @@
 ;; (run-tests 'utilities.exception_exploration)
 
 ;; -- single log tests --
+(deftest test-read-log
+  (testing "read-log function"
+    (let )))
+
 (deftest test-get-phase
   (testing "get-phase function"))
+
+
 
 ;;  -- multi-log tests --
 (deftest test-parse-logs
