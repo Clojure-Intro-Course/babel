@@ -43,12 +43,6 @@
   [log]
   (count (get-in log [:exception :via])))
 
-(defn get-nested-types
-  "get the types of errors in the :at :type of an error"
-  [log]
-  (map :type (get-in log [:exception :via])))
-
-;; logs(vector of maps) -> logs(vector of maps)
 (defn filter-by-nesting
   ""
   [logs level]
@@ -60,16 +54,43 @@
   [log]
   (vec (map :type (get-in log [:exception :via]))))
 
+(defn filter-by-type
+  "input the logs, type, and position (do you want the last type or first type in nested errors) and get back the logs that fit the type"
+  [logs type position]
+  (filter #(let [nested-types (get-nested-types %)]
+             (case position
+               "first" (isa? (first (map eval nested-types)) type)
+               "last" (isa? (last (map eval nested-types)) type)))
+          logs))
+
+;; (defn filter-by-subtype
+;;   ""
+;;   [logs type]
+;;   (filter #(isa? type 
+;;                  (get-nested-types %)) logs))
+
+(defn filter-by-code
+  ""
+  [logs code]
+  (filter #(= code (:code %)) logs))
 
 ;; [logs, map of :kw and vals] -> logs
-;; (defn filter-search
-;;   ""
-;;   [])
+(defn filter-search
+  "Give logs and a map of keys and values to search by and will give back the logs that fit those options"
+  [logs search-map]
+  (reduce (fn [filtered-logs [key value]]
+            (case key
+              :phase (filter-by-phase filtered-logs value)
+              :nesting (filter-by-nesting filtered-logs value)
+              ;; :type (filter-by-type filtered-logs value)
+              filtered-logs))
+          logs
+          search-map))
 
 ;; --- Function Example Uses ---
 ;;
 ;; - Setup -
-;; needs the original "ex.txt" file for tests
+;; needs the "ex.txt" file for tests `log/code-ex-triage/ex.txt`
 ;; (require '[utilities.exception_exploration :as exploration])
 ;; (def parsed-logs (exploration/parse-logs "ex.txt"))
 ;; (def log1 (parsed-logs 22))
