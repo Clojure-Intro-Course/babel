@@ -1,6 +1,8 @@
 (ns utilities.exception_exploration
    (:require [clojure.string :as str]
-             [clojure.java.io :as io]))
+             [clojure.java.io :as io]
+             [clojure.test :refer [deftest is testing]]
+             ))
 
 ;; Utility functions for exploring logged exceptions.
 
@@ -109,3 +111,52 @@
 ;; (count (exploration/filter-by-nesting parsed-logs 3)) => 8
 ;; (count (exploration/get-nested-types log1)) => 3
 ;; (exploration/get-nested-types log1) => (clojure.lang.ExceptionInfo clojure.lang.LispReader$ReaderException java.lang.RuntimeException)
+;; (count (exploration/filter-search parsed-logs {:phase :read-source :nesting 3})) => 8
+
+;; to run tests:
+;; (require '[clojure.test :refer :all])
+;; (require '[utilities.exception_exploration :as exploration])
+;; (run-tests 'utilities.exception_exploration)
+
+;; -- single log tests --
+(deftest test-get-phase
+  (testing "get-phase function"))
+
+;;  -- multi-log tests --
+(deftest test-parse-logs
+  (testing "parse-logs function"
+    (let [parsed-logs (parse-logs "ex.txt")
+          log0 (parsed-logs 0)]
+      (is (not (nil? parsed-logs)))
+      (is (vector? parsed-logs))
+      (is (map? log0))
+      (is (string? (:code log0)))
+      ;; TODO: add more tests
+      )))
+
+(deftest test-filter-by-code
+  (testing "filter-by-code function"
+    (let [parsed-logs (parse-logs "ex.txt")
+          log0 (read-log (read-string "{:code \"(/ 70 0)\", :exception \"{:cause \\\"Divide by zero\\\", :via ({:at [clojure.lang.Numbers divide \\\"Numbers.java\\\" 190], :message \\\"Divide by zero\\\", :type java.lang.ArithmeticException})}\", :ex-triage \"{:class java.lang.ArithmeticException, :line 1, :cause \\\"Divide by zero\\\", :symbol babel.middleware/eval1122, :source \\\"form-init684767312890052564.clj\\\", :spec \\\"nil\\\", :phase :execution}\"}"))
+          filtered-logs (filter-by-code parsed-logs "(/ 70 0)")]
+      (is (= 1 (count filtered-logs)))
+      (is (= "Divide by zero" (:cause (:exception (first filtered-logs)))))
+      (is (= log0 (first filtered-logs)))
+      )))
+
+;; (deftest test-filter-by-type
+;;   (testing "filter-by-type function" 
+;;     (let [parsed-logs (parse-logs "ex.txt")
+;;           filtered-logs (filter-by-type parsed-logs java.lang.ArithmeticException)]
+;;       (is (vector? filtered-logs)))))
+
+(deftest test-filter-search
+  (testing "filter-search function"
+    (let [parsed-logs (parse-logs "ex.txt")
+          search-map {:phase :read-source :nesting 3}
+          filtered-logs (filter-search parsed-logs search-map)]
+      (is (= (count (filter-search parsed-logs {:phase :read-source :nesting 3})) 8))
+      (doseq [log filtered-logs]
+        (is (= (:phase (:ex-triage log)) :read-source))
+        (is (= (count (:via (:exception log))) 3)))
+      )))
