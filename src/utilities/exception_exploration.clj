@@ -7,7 +7,6 @@
 ;; Utility functions for exploring logged exceptions.
 
 ;; Takes a HashMap of a logged exception and converts strings to HashMaps as needed.
-
 (defn read-log
   "create a new map with with strings converted"
   [map]
@@ -84,6 +83,7 @@
             (case key
               :phase (filter-by-phase filtered-logs value)
               :nesting (filter-by-nesting filtered-logs value)
+              :code (filter-by-code filtered-logs value)
               ;; :type (filter-by-type filtered-logs value)
               filtered-logs))
           logs
@@ -113,18 +113,55 @@
 ;; (exploration/get-nested-types log1) => (clojure.lang.ExceptionInfo clojure.lang.LispReader$ReaderException java.lang.RuntimeException)
 ;; (count (exploration/filter-search parsed-logs {:phase :read-source :nesting 3})) => 8
 
-;; to run tests:
-;; (require '[clojure.test :refer :all])
-;; (require '[utilities.exception_exploration :as exploration])
-;; (run-tests 'utilities.exception_exploration)
-
 ;; -- single log tests --
 (deftest test-read-log
   (testing "read-log function"
-    (let )))
+    (let [log {:code "(/ 70 0)", 
+               :exception "{:cause \"Divide by zero\", :via ({:at [clojure.lang.Numbers divide \"Numbers.java\" 190], :message \"Divide by zero\", :type java.lang.ArithmeticException})}", 
+               :ex-triage "{:class java.lang.ArithmeticException, :line 1, :cause \"Divide by zero\", :symbol babel.middleware/eval1122, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :execution}"}
+          expected-output {:code "(/ 70 0)"
+                           :exception {:cause "Divide by zero"
+                                       :via '({:at [clojure.lang.Numbers divide "Numbers.java" 190]
+                                               :message "Divide by zero"
+                                               :type java.lang.ArithmeticException})}
+                           :ex-triage {:class java.lang.ArithmeticException
+                                       :line 1
+                                       :cause "Divide by zero"
+                                       :symbol 'babel.middleware/eval1122
+                                       :source "form-init684767312890052564.clj"
+                                       :spec "nil"
+                                       :phase :execution}}
+          expected-output (read-string (pr-str expected-output))]
+      (is (= expected-output (read-log log)))
+      )))
 
 (deftest test-get-phase
-  (testing "get-phase function"))
+  (testing "get-phase function")
+  (let [log-string {:code "(/ 70 0)",
+                    :exception "{:cause \"Divide by zero\", :via ({:at [clojure.lang.Numbers divide \"Numbers.java\" 190], :message \"Divide by zero\", :type java.lang.ArithmeticException})}",
+                    :ex-triage "{:class java.lang.ArithmeticException, :line 1, :cause \"Divide by zero\", :symbol babel.middleware/eval1122, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :execution}"}
+        log (read-log log-string)]
+    (is (= :execution (get-phase log))) 
+    ))
+
+(deftest test-get-level-nesting
+  (testing "get-level-nesting function"
+    (let [log-string {:code "(if (= 0 0) (+ 2 3) (+ 2 3) (+2 3))",
+                      :exception "{:cause \"Too many arguments to if\", :via ({:at [clojure.lang.Compiler analyzeSeq \"Compiler.java\" 7132], :message \"Syntax error compiling if at (/tmp/form-init684767312890052564.clj:1:29).\", :type clojure.lang.Compiler$CompilerException} {:at [clojure.lang.Util runtimeException \"Util.java\" 221], :message \"Too many arguments to if\", :type java.lang.RuntimeException})}",
+                      :ex-triage "{:class java.lang.RuntimeException, :line 1, :cause \"Too many arguments to if\", :symbol if, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :compile-syntax-check}"}
+          log (read-log log-string)]
+      (is (= 2 (get-level-nesting log)))
+      )))
+
+(deftest test-get-nested-types
+  (testing "get-nested-types function"
+    (let [log-string {:code "(if (= 0 0) (+ 2 3) (+ 2 3) (+2 3))", 
+                      :exception "{:cause \"Too many arguments to if\", :via ({:at [clojure.lang.Compiler analyzeSeq \"Compiler.java\" 7132], :message \"Syntax error compiling if at (/tmp/form-init684767312890052564.clj:1:29).\", :type clojure.lang.Compiler$CompilerException} {:at [clojure.lang.Util runtimeException \"Util.java\" 221], :message \"Too many arguments to if\", :type java.lang.RuntimeException})}", 
+                      :ex-triage "{:class java.lang.RuntimeException, :line 1, :cause \"Too many arguments to if\", :symbol if, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :compile-syntax-check}"}
+          log (read-log log-string)
+          expected-output [clojure.lang.Compiler$CompilerException java.lang.RuntimeException]]
+      (is (= expected-output (get-nested-types log)))
+      )))
 
 
 
@@ -143,11 +180,18 @@
 (deftest test-filter-by-code
   (testing "filter-by-code function"
     (let [parsed-logs (parse-logs "ex.txt")
-          log0 (read-log (read-string "{:code \"(/ 70 0)\", :exception \"{:cause \\\"Divide by zero\\\", :via ({:at [clojure.lang.Numbers divide \\\"Numbers.java\\\" 190], :message \\\"Divide by zero\\\", :type java.lang.ArithmeticException})}\", :ex-triage \"{:class java.lang.ArithmeticException, :line 1, :cause \\\"Divide by zero\\\", :symbol babel.middleware/eval1122, :source \\\"form-init684767312890052564.clj\\\", :spec \\\"nil\\\", :phase :execution}\"}"))
+          expected-log (read-log (read-string "{:code \"(/ 70 0)\", :exception \"{:cause \\\"Divide by zero\\\", :via ({:at [clojure.lang.Numbers divide \\\"Numbers.java\\\" 190], :message \\\"Divide by zero\\\", :type java.lang.ArithmeticException})}\", :ex-triage \"{:class java.lang.ArithmeticException, :line 1, :cause \\\"Divide by zero\\\", :symbol babel.middleware/eval1122, :source \\\"form-init684767312890052564.clj\\\", :spec \\\"nil\\\", :phase :execution}\"}"))
           filtered-logs (filter-by-code parsed-logs "(/ 70 0)")]
       (is (= 1 (count filtered-logs)))
       (is (= "Divide by zero" (:cause (:exception (first filtered-logs)))))
-      (is (= log0 (first filtered-logs)))
+      (is (= expected-log (first filtered-logs)))
+      )))
+
+(deftest test-filter-by-nesting
+  (testing "filter-by-nesting function"
+    (let [parsed-logs (parse-logs "ex.txt")
+          filtered-logs (filter-by-nesting parsed-logs 3)]
+      (is (every? #(= 3 (get-level-nesting %)) filtered-logs)) ;; Check that every log in filtered-logs has a nesting of 3 
       )))
 
 ;; (deftest test-filter-by-type
