@@ -52,6 +52,9 @@
 (expect (t/make-pattern "The first argument of (into 1 even?) was expected to be a sequence but is a number 1 instead.")
 (log/babel-test-message "(into 1 even?)"))
 
+(expect (t/make-pattern "The second argument of (into [1 2 3] 4) was expected to be a sequence but is a number 4 instead.")
+        (log/babel-test-message "(into [1 2 3] 4)"))
+
 (expect (t/make-pattern "The first argument of (contains? :a :a) was expected to be a collection but is a keyword :a instead.")
 (log/babel-test-message "(contains? :a :a)"))
 
