@@ -126,5 +126,7 @@
       (spit "./log/log_category.html" (add-category current-time) :append true)
       (clojure.java.io/make-parents "./log/history/test_logs.html")
       (spit (str "./log/history/" current-time ".html") (html-log-preset) :append false)
+      (clojure.java.io/make-parents "./log/history/test_logs.html")
+      (clojure.java.io/make-parents (str "./log/code-ex-triage/" current-time "-log-file.txt")) ; Ensure directory exists
       (spit "./log/last_test.txt" (str (new java.util.Date) "\n") :append false)
       (spit (str "./log/code-ex-triage/" current-time "-log-file.txt") "[" :append false))))
