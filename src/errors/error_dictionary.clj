@@ -200,7 +200,7 @@
    ;### Assertion Errors ###
    ;########################
 
-;; TODO: fix those! Issue #103
+;; TODO: fix those! Issue #31 in the new babel repo
    #_{:key :assertion-error-with-argument
     ;need to test
     :class "AssertionError"
