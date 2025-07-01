@@ -62,7 +62,7 @@
            (processor/location-non-spec via trace)))))
 
 (defn babel-errors
-  [& [ex]] 
+  [& [ex]]
   (let [e (or ex *e)
         modified (modify-message e)
      trace (processor/print-stacktrace e) ; for logging
