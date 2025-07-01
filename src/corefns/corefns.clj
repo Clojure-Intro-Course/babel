@@ -94,7 +94,7 @@
          :lazy :babel.type/lazy))
 
 ;; Babel specs for data types that can optionally be lazy sequences
-(s/def :babel.type/function-or-lazy 
+(s/def :babel.type/function-or-lazy
   (s/alt :function ifn?, 
          :lazy :babel.type/lazy))
 (s/def :babel.type/number-or-lazy 
@@ -141,9 +141,9 @@
 ;; These were (probably) used for macros, but are seemingly unused as of now 
 ;; (s/def ::bindings-seq2 (s/and vector? ::binding-seq))
 ;; (s/def ::binding-seq 
-;;   (s/cat :a :clojure.core.specs.alpha/binding-form, 
-;;          :b (s/or :a (s/nilable :babel.type/coll) 
-;;                   :b :babel.type/symbol)))
+  ;; (s/cat :a :clojure.core.specs.alpha/binding-form, 
+        ;;  :b (s/or :a (s/nilable :babel.type/coll) 
+                  ;; :b :babel.type/symbol)))
 
 ;; #################################################
 ;; ########## clojure.core function specs ##########
@@ -410,9 +410,9 @@
                (s/or :number :babel.type/number :char char?)))
 #_(stest/instrument `clojure.core/int)
 
-;;;;;;;;;;;;;;;;; Our spec for macros ;;;;;;;;;;;;;;;;;;;;;;;
+; Our spec for macros ;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; TODO: need to revisit
+;; ; TODO: need to revisit
 
 (s/def ::innervector (s/cat :symbol :babel.type/symbol :b (s/* (s/cat :key keyword :symbol-or-collection (s/or :symbol :babel.type/symbol
                                                                           :collection (s/nilable :babel.type/coll))))))
