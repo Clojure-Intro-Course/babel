@@ -12,7 +12,7 @@
   [e]
   (cm/ex-str (cm/ex-triage (Throwable->map e))))
 
-(defn- modify-message
+(defn modify-message ; made public for usage in check.fns/check-equal
   "TODO: Write some great docstring explaining what all of this does."
   [exc]
   (let [exc-type (class exc)
