@@ -61,6 +61,17 @@
            "\n"
            (processor/location-non-spec via trace)))))
 
+(defn babel-errors
+  [& [ex]]
+  (let [e (or ex *e)
+        modified (modify-message e)
+     trace (processor/print-stacktrace e) ; for logging
+     ;; vvv investigate this, maybe doesn't need to be in the let block?
+     ;; possibly included here to guarantee order of evaluation is correct.
+     _ (reset! track {:message (record-message e) :modified modified :trace trace})]
+     (println modified)
+     (if (not= trace "") (println trace) ())))
+
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
 (defn setup-exc
