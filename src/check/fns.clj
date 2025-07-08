@@ -3,8 +3,8 @@
 
 
 
-(defn- prettify-object [o]
-  (cond (string? o) (str "\"" o "\"")
+(defn prettify-object [o]
+  (cond (string? o) o
         (= (type o) clojure.lang.LazySeq) (pr-str o)
         :else o))
 
