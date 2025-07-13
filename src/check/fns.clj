@@ -15,7 +15,7 @@
 
 (defn check-equal [e1 e2]
   (try (if (nil? (assert (= e1 e2))) (str "Test (= " (second (dict/type-and-val e1)) " " (second (dict/type-and-val e2)) ") passed"))
-       (catch java.lang.AssertionError e (str "Test failed: (= " (prettify-object e1) " " (prettify-object e2) ")" #_(.getMessage e)))
+       (catch java.lang.AssertionError e (str "Test failed: (= " (second (dict/type-and-val e1)) " " (second (dict/type-and-val e2)) ")" #_(.getMessage e)))
        #_(catch Throwable e (middleware/modify-message e))))
 
 (s/fdef check-equal
