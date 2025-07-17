@@ -14,9 +14,16 @@
   (instance? java.lang.Object x))
 
 (defn check-equal [e1 e2]
+
   (try (if (nil? (assert (= e1 e2))) (str "Test (= " (second (dict/type-and-val e1)) " " (second (dict/type-and-val e2)) ") passed"))
        (catch java.lang.AssertionError e (str "Test failed: (= " (second (dict/type-and-val e1)) " " (second (dict/type-and-val e2)) ")" #_(.getMessage e)))
        #_(catch Throwable e (middleware/modify-message e))))
 
 (s/fdef check-equal
-  :args (s/tuple object? object?))
+  :args (s/and :babel.arity/two))
+
+(defn check-range [v low high] 
+  (if (<= low v high) (str "Test (<= " low v high ") passed") (str "Test (<= " low v high ") failed")))
+
+(defn check-precision [v1 v2 precision]
+  (if (<= (- v1 precision) v2 (+ v1 precision)) (str "Test passed") (str "Test failed"))) ; not sure how this one should be phrased, also might need help on the docstrings
