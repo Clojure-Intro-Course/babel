@@ -23,3 +23,18 @@
     ;; not sure if we want to keep that behavior, since pr-str is the only way we know how to evaluate lazy sequences
     (is (= (try (fns/prettify-object (/ 1 0))
                 (catch java.lang.ArithmeticException e (.getMessage e))) "Divide by zero"))))
+
+(deftest test-check-range
+  (testing "Testing the check-range function"
+    (is (= (fns/check-range 1 0 2) "Test (<= 0 1 2) passed"))
+    (is (= (fns/check-range 1.1 1.0 1.2) "Test (<= 1.0 1.1 1.2) passed"))
+    (is (= (fns/check-range 0 1 2) "Test (<= 1 0 2) failed"))
+    (is (= (fns/check-range 1.0 1.1 1.2) "Test (<= 1.1 1.0 1.2) failed"))))
+
+(deftest test-check-precision
+  (testing "Testing the check-precision function"
+    (is (= (fns/check-precision 1 1 1) "Test passed: 1 is within 1 of 1"))
+    (is (= (fns/check-precision 1 2 1) "Test passed: 2 is within 1 of 1"))
+    (is (= (fns/check-precision 1 1.1 0.2) "Test passed: 1.1 is within 0.2 of 1"))
+    (is (= (fns/check-precision 1 -1 1) "Test failed: -1 is not within 1 of 1"))
+    (is (= (fns/check-precision 1 1.4 0.2) "Test failed: 1.4 is not within 0.2 of 1"))))

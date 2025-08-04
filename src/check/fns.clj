@@ -25,5 +25,12 @@
 (defn check-range [v low high] 
   (if (<= low v high) (str "Test (<= " low v high ") passed") (str "Test (<= " low v high ") failed")))
 
-(defn check-precision [v1 v2 precision]
-  (if (<= (- v1 precision) v2 (+ v1 precision)) (str "Test passed") (str "Test failed"))) ; not sure how this one should be phrased, also might need help on the docstrings
+(s/fdef check-range
+  :args (s/and :babel.arity/three (s/tuple number? number? number?) ))
+
+(defn check-precision [expected actual precision]
+  (if (<= (- expected precision) actual (+ expected precision)) (str "Test passed: " actual "is within " precision " of " expected) 
+      (str "Test failed: " actual "is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
+
+(s/fdef check-precision
+  :args (s/and :babel.arity/three (s/tuple number? number? number?)))
