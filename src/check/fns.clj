@@ -14,7 +14,6 @@
   (instance? java.lang.Object x))
 
 (defn check-equal [e1 e2]
-
   (try (if (nil? (assert (= e1 e2))) (str "Test (= " (second (dict/type-and-val e1)) " " (second (dict/type-and-val e2)) ") passed"))
        (catch java.lang.AssertionError e (str "Test failed: (= " (second (dict/type-and-val e1)) " " (second (dict/type-and-val e2)) ")" #_(.getMessage e)))
        #_(catch Throwable e (middleware/modify-message e))))
@@ -26,7 +25,7 @@
   (if (<= low v high) (str "Test (<= " low v high ") passed") (str "Test (<= " low v high ") failed")))
 
 (s/fdef check-range
-  :args (s/and :babel.arity/three (s/tuple number? number? number?) ))
+  :args (s/and :babel.arity/three (s/tuple number? number? number?)))
 
 (defn check-precision [expected actual precision]
   (if (<= (- expected precision) actual (+ expected precision)) (str "Test passed: " actual "is within " precision " of " expected) 
