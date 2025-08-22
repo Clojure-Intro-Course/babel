@@ -18,7 +18,7 @@
    and 'Test (= v1 v2) failed' otherwise, where v1 and v2 are the results of evaluating expected and actual respectively."
   [expected actual]
   (try (if (nil? (assert (= expected actual))) (str "Test (= " (second (dict/type-and-val expected)) " " (second (dict/type-and-val actual)) ") passed"))
-       (catch java.lang.AssertionError e (str "Test failed: (= " (second (dict/type-and-val expected)) " " (second (dict/type-and-val actual)) ")" #_(.getMessage e)))
+       (catch java.lang.AssertionError e (str "Test (= " (second (dict/type-and-val expected)) " " (second (dict/type-and-val actual)) ") failed" #_(.getMessage e)))
        #_(catch Throwable e (middleware/modify-message e))))
 
 (s/fdef check-equal
@@ -39,8 +39,8 @@
    Returns 'Test passed: actual is within precision of expected' if the difference between actual and expected is less than or equal to precision, 
    and 'Test failed: actual is not within precision of expected' otherwise."
   [expected actual precision]
-  (if (<= (- expected precision) actual (+ expected precision)) (str "Test passed: " actual "is within " precision " of " expected) 
-      (str "Test failed: " actual "is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
+  (if (<= (- expected precision) actual (+ expected precision)) (str "Test passed: " actual " is within " precision " of " expected) 
+      (str "Test failed: " actual " is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
 
 (s/fdef check-precision
   :args (s/and :babel.arity/three (s/tuple number? number? number?)))
