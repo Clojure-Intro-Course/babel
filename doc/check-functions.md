@@ -13,6 +13,11 @@ and 'Test (= v1 v2) failed' otherwise, where v1 and v2 are the results of evalua
 ;;=> "Test (= 1 2) failed"
 (check-equal 10 10)
 ;;=> "Test (= 10 10) passed"
+;; always evaluates expressions
+(check-equal (+ 1 2) 3)
+;;=> "Test (= 3 3) passed"
+(check-equal (map inc [1 2 3]) [2 3 4])
+;;=> "Test (= (2 3 4) [2 3 4]) passed"
 (check-equal "hello" "hello")
 ;;=> "Test (= "hello" "hello") passed"
 (check-equal {:key "word", :word "key"} (hash-map :key "word" :word "key"))
@@ -23,13 +28,13 @@ and 'Test (= v1 v2) failed' otherwise, where v1 and v2 are the results of evalua
 (check-equal 1/3 (/ 1 3))
 ;;=> "Test (= 1/3 1/3) passed"
 
-;; floating point precision errors occur when calculating with decimal values
-(check-equal 1/3 (/ 1 3.0))
-;;=> "Test (= 1/3 0.3333333333333333) failed"
-;; introducing check-precision, a function designed to handle this sort of thing. just give it a very small number for the precision margin
-(check-precision 1/3 (/ 1 3.0) 0.0000001)
-;;=> "Test passed: 0.3333333333333333 is within 1.0E-7 of 1/3"
-;; very small values are expressed in scientific notation
+;; these two values are equal to each other numerically, but we haven't told it to convert the ratio to a number
+(check-equal 1/4 (/ 1 4.0))
+;;=> "Test (= 1/4 0.25) failed"
+;; check-precision and check-range can handle it because they always expect numbers
+;; giving check-precision a precision of 0 makes it behave similarly to check-equal
+(check-precision 1/4 (/ 1 4.0) 0)
+;;=> "Test passed: 0.25 is within 0 of 0.25"
 
 
 ```
@@ -50,6 +55,8 @@ and 'Test (<= low n high) failed' otherwise.
 ;;=> "Test (<= 2 1 3) failed"
 (check-range 100 0 50)
 ;;=> "Test (<= 0 100 50) failed"
+(check-range (+ 1 2) 1 5)
+;;=> "Test (<= 1 3 5) passed"
 
 ;; edge cases
 (check-range 10 0 10)
@@ -72,11 +79,16 @@ and 'Test failed: actual is not within precision of expected' otherwise.
 ;;=> "Test failed: 2 is not within 0.5 of 1"
 (check-precision 1 1.5 1)
 ;;=> "Test passed: 1.5 is within 1 of 1"
+(check-precision 1/4 (/ 1 4.0) 0)
+;;=> "Test passed: 0.25 is within 0 of 0.25"
+;; ratios are a different type from decimals, but they get converted to decimals when compared in this function
 
-;; edge cases
+
 (check-precision 1 1.1 0.1)
 ;;=> "Test passed: 1.1 is within 0.1 of 1"
 (check-precision 1 0.9 0.1)
 ;;=> "Test passed: 0.9 is within 0.1 of 1"
+(check-precision 1 1 0)
+;;=> "Test passed: 1 is within 0 of 1"
 ```
 

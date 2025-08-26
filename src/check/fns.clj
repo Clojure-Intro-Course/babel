@@ -22,17 +22,17 @@
        #_(catch Throwable e (middleware/modify-message e))))
 
 (s/fdef check-equal
-  :args (s/and :babel.arity/two))
+  :args (s/and :babel.arity/two (s/tuple (s/nilable :babel.type/any-or-lazy) (s/nilable :babel.type/any-or-lazy))))
 
 (defn check-range 
   "Takes a number n, and two numbers, low and high. Returns 'Test (<= low n high) passed' if v is between low and high,
    and 'Test (<= low n high) failed' otherwise."
   [n low high] 
   
-  (if (<= low n high) (str "Test (<= " low n high ") passed") (str "Test (<= " low n high ") failed")))
+  (if (<= low n high) (str "Test (<= " low " " n " " high ") passed") (str "Test (<= " low " " n  " " high ") failed")))
 
 (s/fdef check-range
-  :args (s/and :babel.arity/three (s/tuple number? number? number?)))
+  :args (s/and :babel.arity/three (s/tuple :babel.type/number-or-lazy :babel.type/number-or-lazy :babel.type/number-or-lazy)))
 
 (defn check-precision 
   "Takes three numbers: the expected value, the actual value, and the precision. 
@@ -43,4 +43,4 @@
       (str "Test failed: " actual " is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
 
 (s/fdef check-precision
-  :args (s/and :babel.arity/three (s/tuple number? number? number?)))
+  :args (s/and :babel.arity/three (s/tuple :babel.type/number-or-lazy :babel.type/number-or-lazy :babel.type/number-or-lazy)))
