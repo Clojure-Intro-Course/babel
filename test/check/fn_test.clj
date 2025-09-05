@@ -28,7 +28,7 @@
     (is (= (try (fns/check-equal 1)
                 (catch Throwable e (ex-helper e :via))) [:babel.arity/two]))
     (is (= (try (fns/check-equal "hello")
-                (catch Throwable e (ex-helper e :via))) [:babel.arity/two]))
+                (catch Throwable e (ex-helper e :via))) [:babel.arity/two])) ; fails on number before failing on type
 
     ))
 
@@ -50,6 +50,8 @@
     (is (= (fns/check-range 1.0 1.1 1.2) "Test (<= 1.1 1.0 1.2) failed"))
     (is (= (try (fns/check-range "NaN" 0 1)
                 (catch Throwable e (ex-helper e :via))) [:babel.type/number-or-lazy :babel.type/number :babel.type/number])) ; is this normal? this seems weird to me. at no point did I specify any kind of spec that uses :babel.type/number
+    (is (= (try (fns/check-range "NaN" (lazy-seq [1 2 3 4]) 1)
+                (catch Throwable e (ex-helper e :via))) [:babel.type/number-or-lazy :babel.type/number :babel.type/number])) ; what
     ))
 
 (deftest test-check-precision
