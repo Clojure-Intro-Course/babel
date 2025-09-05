@@ -1,7 +1,8 @@
 (ns check.fns
   (:require [babel.middleware :as middleware]
             [errors.dictionaries :as dict]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha :as s]
+            [clojure.spec.test.alpha :as stest]))
 
 
 
@@ -22,7 +23,9 @@
        #_(catch Throwable e (middleware/modify-message e))))
 
 (s/fdef check-equal
-  :args (s/and :babel.arity/two (s/tuple (s/nilable :babel.type/any-or-lazy) (s/nilable :babel.type/any-or-lazy))))
+  :args (s/and :babel.arity/two 
+               (s/cat :value (s/nilable any?) :second (s/nilable any?))))
+(stest/instrument `check-equal)
 
 (defn check-range 
   "Takes a number n, and two numbers, low and high. Returns 'Test (<= low n high) passed' if v is between low and high,
@@ -32,7 +35,8 @@
   (if (<= low n high) (str "Test (<= " low " " n " " high ") passed") (str "Test (<= " low " " n  " " high ") failed")))
 
 (s/fdef check-range
-  :args (s/and :babel.arity/three (s/tuple :babel.type/number-or-lazy :babel.type/number-or-lazy :babel.type/number-or-lazy)))
+  :args (s/and :babel.arity/three (s/cat :n :babel.type/number-or-lazy :low :babel.type/number-or-lazy :high :babel.type/number-or-lazy)))
+(stest/instrument `check-range)
 
 (defn check-precision 
   "Takes three numbers: the expected value, the actual value, and the precision. 
@@ -43,4 +47,5 @@
       (str "Test failed: " actual " is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
 
 (s/fdef check-precision
-  :args (s/and :babel.arity/three (s/tuple :babel.type/number-or-lazy :babel.type/number-or-lazy :babel.type/number-or-lazy)))
+  :args (s/and :babel.arity/three (s/cat :expected :babel.type/number-or-lazy :actual :babel.type/number-or-lazy :precision :babel.type/number-or-lazy)))
+(stest/instrument `check-precision)

@@ -18,6 +18,7 @@
                  :report "none"
                  ;; This is a repl hook, not an nrepl hook (and that's what we want):
                  :caught babel.middleware/babel-errors}
-   :injections [(require 'corefns.corefns)]
+   :injections [(require 'corefns.corefns)
+                #_(require 'check.fns)]
    :main babel.middleware
    :aot [babel.middleware])

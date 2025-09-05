@@ -1,7 +1,17 @@
 (ns check.fn-test
   (:require [clojure.test :refer :all]
             [check.fns :as fns]
-            [errors.dictionaries :as dict]))
+            [errors.dictionaries :as dict]
+            [clojure.main :refer [ex-triage]]))
+
+(defn- ex-helper [error kw]
+  (-> error
+      Throwable->map
+      ex-triage
+      :clojure.error/spec
+      :clojure.spec.alpha/problems
+      first
+      kw))
 
 (deftest test-check-equal
   (testing "Testing the check-equal function"
@@ -12,8 +22,14 @@
     (is (= (try (fns/check-equal "hello" (slurp "this-file-does-not-exist.txt"))
                 (catch java.io.FileNotFoundException e (.getMessage e))) "this-file-does-not-exist.txt (No such file or directory)")) ; interesting. I would expect the message to just be "No such file or directory" - I guess babel is working then
     (is (= (fns/check-equal (map inc [1 2 3]) '(2 3 4)) "Test (= (2 3 4) (2 3 4)) passed"))
-    
-    
+    (is (= (fns/check-equal "this is a string" (str "this is " (first "abcdefghijklmnopqrstuvwxyz") " string")) "Test (= \"this is a string\" \"this is a string\") passed"))
+    (is (= (try (fns/check-equal 1 1 1)
+                (catch Throwable e (ex-helper e :via))) [:babel.arity/two]))
+    (is (= (try (fns/check-equal 1)
+                (catch Throwable e (ex-helper e :via))) [:babel.arity/two]))
+    (is (= (try (fns/check-equal "hello")
+                (catch Throwable e (ex-helper e :via))) [:babel.arity/two]))
+
     ))
 
 ;; (deftest test-prettify-object﻿
@@ -32,7 +48,8 @@
     (is (= (fns/check-range 1.1 1.0 1.2) "Test (<= 1.0 1.1 1.2) passed"))
     (is (= (fns/check-range 0 1 2) "Test (<= 1 0 2) failed"))
     (is (= (fns/check-range 1.0 1.1 1.2) "Test (<= 1.1 1.0 1.2) failed"))
-    ;; add tests to check if babel error messages work properly
+    (is (= (try (fns/check-range "NaN" 0 1)
+                (catch Throwable e (ex-helper e :via))) [:babel.type/number-or-lazy :babel.type/number :babel.type/number])) ; is this normal? this seems weird to me. at no point did I specify any kind of spec that uses :babel.type/number
     ))
 
 (deftest test-check-precision
@@ -48,6 +65,7 @@
     ))
 
 
+
 ;; does = do deep check or shallow check? compare hashmaps and strings and stuff that are formed in different ways (not a priority)
 ;; test the specs (DO THIS SOON)
-;; add tests for 1/3 vs 0.333333333333 checks, and other floating-point weirdness. but keep them out of the documentation
+;; game/h

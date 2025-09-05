@@ -27,8 +27,26 @@ and 'Test (= v1 v2) failed' otherwise, where v1 and v2 are the results of evalua
 ;; order doesn't matter for hashmaps
 (check-equal 1/3 (/ 1 3))
 ;;=> "Test (= 1/3 1/3) passed"
+;; vectors and lists are equal to each other if their contents are the same
+(check-equal [1 2 3] '(1 2 3))
+;;=> "Test (= [1 2 3] (1 2 3)) passed"
+;; unordered and ordered collections are never equal
+(check-equal #{1 4 2 3} (1 4 2 3))
+;;=> "Test (= #{1 4 3 2} (1 4 2 3)) failed"
+;; sets are 
+;; cannot compare functions; these two do the same thing but they are not the same exact function and so they are not equal
+;; WEIRD CASES. THIS IS SUBJECT TO CHANGE
+(check-equal (fn [a b] (+ a b)) (fn [c d] (+ c d)))
+;;=> "Test (= an anonymous function an anonymous function) failed"
+(check-equal map inc)
+;;=> "Test (= map inc) failed"
+
+;; compares the output value
+(check-equal "this is a string" (str "this is " (first "abcdefghijklmnopqrstuvwxyz") " string"))
+;;=> "Test (= \"this is a string\" \"this is a string\") passed"
 
 ;; these two values are equal to each other numerically, but we haven't told it to convert the ratio to a number
+;; and ratios and numbers are different types
 (check-equal 1/4 (/ 1 4.0))
 ;;=> "Test (= 1/4 0.25) failed"
 ;; check-precision and check-range can handle it because they always expect numbers
