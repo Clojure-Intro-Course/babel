@@ -61,16 +61,17 @@
            "\n"
            (processor/location-non-spec via trace)))))
 
-(defn babel-errors
-  [& [ex]]
-  (let [e (or ex *e)
-        modified (modify-message e)
-     trace (processor/print-stacktrace e) ; for logging
-     ;; vvv investigate this, maybe doesn't need to be in the let block?
-     ;; possibly included here to guarantee order of evaluation is correct.
-     _ (reset! track {:message (record-message e) :modified modified :trace trace})]
-     (println modified)
-     (if (not= trace "") (println trace) ())))
+(defn split-exception [ex]
+  "split the exception into its keys"
+  (let [{:keys [cause trace via phase]} (Throwable->map ex)
+        via-details (map #(select-keys % [:at :message :type]) via)]
+    {:cause cause :via via-details})) ; removed :trace (pr-str trace) and phase :phase (pr-str phase)
+
+(defn split-triage [ex]
+  "split the ex-triage into its keys"
+  (let [triage-map (clojure.main/ex-triage (Throwable->map ex))
+        {:keys [clojure.error/class clojure.error/line clojure.error/cause clojure.error/symbol clojure.error/source clojure.error/spec clojure.error/phase]} triage-map]
+    {:class class :line line :cause cause :symbol symbol :source source :spec (or (pr-str spec) {}) :phase phase}))
 
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
@@ -79,9 +80,17 @@
   (set! nrepl.middleware.caught/*caught-fn* #(do
     (let [modified (modify-message %)
           trace (processor/print-stacktrace %) ; for logging
-          ;; vvv investigate this, maybe doesn't need to be in the let block?
-          ;; possibly included here to guarantee order of evaluation is correct.
-          _ (reset! track {:message (record-message %) :modified modified :trace trace})]
+          split-exc (split-exception %)
+          split-tri (split-triage %)
+          _ (reset! track {
+            :message (record-message %) 
+            :modified modified 
+            :trace trace
+            ; :exception (pr-str (Throwable->map %))
+            :exception (pr-str split-exc)
+            ; :ex-triage (subs(pr-str (clojure.main/ex-triage (Throwable->map %))) 15)
+            :ex-triage (pr-str split-tri)
+            })]            
     (println modified)
     (if (not= trace "") (println trace) ())))))
 

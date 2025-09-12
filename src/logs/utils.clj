@@ -25,7 +25,7 @@
         (repl/message {:op :eval :code (str "(babel.middleware/setup-exc)" code)})
         doall)))
 
-(defn get-error-parts
+#_(defn get-error-parts
   "Takes the object returned by trap-response and separates it into different
   parts, returned as a map"
   [response]
@@ -46,7 +46,7 @@
   []
   (with-open [conn (repl/connect :port server-port)]
       (-> (repl/client conn 1000)
-          (repl/message {:op :eval :code "(deref babel.middleware/track)"})
+          (repl/message {:op :eval :code "(deref babel.middleware/track)"}) ; dereferences the track atom, which holds the tracked errors
           doall
           first
           :value ; returns a string, not a map
@@ -73,6 +73,16 @@
         _ (swap! counter update-in [:partial] inc)]
     (write-html code (:total @counter) (:partial @counter) (str modified "\n" trace) original)))
 
+(defn log-code-exceptions [code exception ex-triage]
+  "Logs code and exception to ./log/code-ex-triage/<current-time>-log-file.txt"
+  ; if the log file ends with a "]" it will remove it then add the next log entry
+  (let [log-file (str "./log/code-ex-triage/" current-time "-log-file.txt")
+        log-content (slurp log-file)]
+    (if (.endsWith log-content "]")
+      (spit log-file (str (subs log-content 0 (dec (count log-content))) ", " (assoc {} :code code  :exception exception :ex-triage ex-triage) "]") :append false) ;removes ] at end
+      (spit log-file (str (assoc {} :code code :exception exception :ex-triage ex-triage) "]") :append true))))
+  
+
 (defn get-all-info
   "Executes code and returns a map with the error part of the response
   (separated into :type, :at, :message, :line, and :in fields - some may
@@ -81,10 +91,11 @@
   [code]
   (let [_ (trap-response code)]
     (when (:log? @counter)
-      (let [{:keys [message modified trace]} (get-tracked-errors)
+      (let [{:keys [message modified trace exception ex-triage]} (get-tracked-errors) ;exc-via removed
             all-info (assoc {} :original message :modified modified :code code :trace trace)
             _ (reset-error-tracking)
-            _ (when (:log? @counter) (write-log all-info))]
+            _ (when (:log? @counter) (write-log all-info))
+            _ (log-code-exceptions code exception ex-triage)]
             all-info))))
 
 (defn babel-test-message
@@ -115,4 +126,7 @@
       (spit "./log/log_category.html" (add-category current-time) :append true)
       (clojure.java.io/make-parents "./log/history/test_logs.html")
       (spit (str "./log/history/" current-time ".html") (html-log-preset) :append false)
-      (spit "./log/last_test.txt" (str (new java.util.Date) "\n") :append false))))
+      (clojure.java.io/make-parents "./log/history/test_logs.html")
+      (clojure.java.io/make-parents (str "./log/code-ex-triage/" current-time "-log-file.txt")) ; Ensure directory exists
+      (spit "./log/last_test.txt" (str (new java.util.Date) "\n") :append false)
+      (spit (str "./log/code-ex-triage/" current-time "-log-file.txt") "[" :append false))))
