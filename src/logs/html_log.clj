@@ -7,7 +7,7 @@
 (def counter (atom {:total 0 :partial 0 :log? true}))
 
 ;;reset the counter
-#_(defn- reset-counter
+(defn- reset-counter
   []
   (reset! counter (atom {:total 0 :partial 0 :log? true})))
 
