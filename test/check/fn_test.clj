@@ -2,7 +2,19 @@
   (:require [clojure.test :refer :all]
             [check.fns :as fns]
             [errors.dictionaries :as dict]
+            [expectations :refer [expect]]
+            [logs.utils :as log]
+            [babel.utils-for-testing :as t] [babel.non-spec-test]
             [clojure.main :refer [ex-triage]]))
+
+
+
+(expect #(not= % nil) (log/set-log babel.non-spec-test/to-log?))
+
+(expect nil (log/add-log
+             (do
+               (def file-name "this file")
+               (:file (meta #'file-name)))))
 
 (defn- ex-helper [error kw]
   (-> error
@@ -32,6 +44,22 @@
 
     ))
 
+
+
+(expect "Test (= 1 1) passed" (fns/check-equal 1 1))
+(expect "Test (= \"no\" \"no\") passed" (fns/check-equal "no" "no"))
+(expect "Divide by zero" (log/babel-test-message "(fns/check-equal 1 (/ 1 0))"))
+(expect "this-file-does-not-exist.txt (No such file or directory)" (log/babel-test-message "(slurp \"this-file-does-not-exist.txt\")"))
+(expect "Test (= (2 3 4) (2 3 4)) passed" (fns/check-equal (map inc [1 2 3]) '(2 3 4)))
+(expect "Test (= \"this is a string\" \"this is a string\") passed" 
+        (fns/check-equal "this is a string" (str "this is " (first "abcdefghijklmnopqrstuvwxyz") " string")))
+(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message (fns/check-equal 1 1 1))) 
+(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message (fns/check-equal 1))) 
+(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message (fns/check-equal "hello"))) ; should fail on number of arguments first before checking type
+
+
+
+
 ;; (deftest test-prettify-object﻿
 ;;   (testing "Testing the prettify-object function"
 ;;     (is (= (fns/prettify-object 1) 1))
@@ -54,6 +82,14 @@
                 (catch Throwable e (ex-helper e :via))) [:babel.type/number-or-lazy :babel.type/number :babel.type/number])) ; what
     ))
 
+(expect "Test (<= 0 1 2) passed" (fns/check-range 1 0 2))
+(expect "Test (<= 1.0 1.1 1.2) passed" (fns/check-range 1.1 1.0 1.2))
+(expect "Test (<= 1 0 2) failed" (fns/check-range 0 1 2))
+(expect "Test (<= 1.1 1.0 1.2) failed" (fns/check-range 1.0 1.1 1.2))
+(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range "NaN" 0 1)"))
+(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range "NaN" (lazy-seq [1 2 3 4]) 1)"))
+
+
 (deftest test-check-precision
   (testing "Testing the check-precision function"
     (is (= (fns/check-precision 1 1 1) "Test passed: 1 is within 1 of 1"))
@@ -66,8 +102,17 @@
     ;; add tests to check if babel error messages work properly
     ))
 
+(expect "Test passed: 1 is within 1 of 1" (fns/check-precision 1 1 1))
+(expect "Test passed: 2 is within 1 of 1" (fns/check-precision 1 2 1))
+(expect "Test passed: 1.1 is within 0.2 of 1" (fns/check-precision 1 1.1 0.2))
+(expect "Test failed: -1 is not within 1 of 1" (fns/check-precision 1 -1 1))
+(expect "Test failed: 1.4 is not within 0.2 of 1" (fns/check-precision 1 1.4 0.2))
+(expect "Test passed: 0.3333333333333333 is within 0 of 1/3" (fns/check-precision 1/3 (/ 1 3.0) 0))
+(expect "Test passed: 0.4 is within 1.0E-7 of 0.4" (fns/check-precision 0.40 (+ 0.1 0.3) 0.0000001))
 
 
 ;; does = do deep check or shallow check? compare hashmaps and strings and stuff that are formed in different ways (not a priority)
 ;; test the specs (DO THIS SOON)
 ;; game/h
+
+
