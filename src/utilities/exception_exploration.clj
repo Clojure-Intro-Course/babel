@@ -1,8 +1,7 @@
 (ns utilities.exception_exploration
-   (:require [clojure.string :as str]
-             [clojure.java.io :as io]
-             [clojure.test :refer [deftest is testing]]
-             ))
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io]
+            [clojure.test :refer [deftest is testing]]))
 
 ;; Utility functions for exploring logged exceptions.
 
@@ -22,7 +21,7 @@
     ;; (println "Attempting to read file at path:" file-path)
     (if (.exists (io/file file-path))
       (let [log-content (slurp file-path)]
-        (println (str "read `"file-path "` succesfully"))
+        (println (str "read `" file-path "` succesfully"))
         (let [logs (read-string log-content)]
           ;; (println "mapping `read-log` onto `logs`")
           (into [] (map read-log logs))))
@@ -33,7 +32,7 @@
   [log]
   (get-in log [:ex-triage :phase]))
 
-(defn filter-by-phase 
+(defn filter-by-phase
   "Takes a vector of (log) maps and returns the logs that have the phase that is input"
   [logs phase]
   (filter #(= phase
@@ -116,8 +115,8 @@
 ;; -- single log tests --
 (deftest test-read-log
   (testing "read-log function"
-    (let [log {:code "(/ 70 0)", 
-               :exception "{:cause \"Divide by zero\", :via ({:at [clojure.lang.Numbers divide \"Numbers.java\" 190], :message \"Divide by zero\", :type java.lang.ArithmeticException})}", 
+    (let [log {:code "(/ 70 0)",
+               :exception "{:cause \"Divide by zero\", :via ({:at [clojure.lang.Numbers divide \"Numbers.java\" 190], :message \"Divide by zero\", :type java.lang.ArithmeticException})}",
                :ex-triage "{:class java.lang.ArithmeticException, :line 1, :cause \"Divide by zero\", :symbol babel.middleware/eval1122, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :execution}"}
           expected-output {:code "(/ 70 0)"
                            :exception {:cause "Divide by zero"
@@ -132,8 +131,7 @@
                                        :spec "nil"
                                        :phase :execution}}
           expected-output (read-string (pr-str expected-output))]
-      (is (= expected-output (read-log log)))
-      )))
+      (is (= expected-output (read-log log))))))
 
 (deftest test-get-phase
   (testing "get-phase function")
@@ -141,8 +139,7 @@
                     :exception "{:cause \"Divide by zero\", :via ({:at [clojure.lang.Numbers divide \"Numbers.java\" 190], :message \"Divide by zero\", :type java.lang.ArithmeticException})}",
                     :ex-triage "{:class java.lang.ArithmeticException, :line 1, :cause \"Divide by zero\", :symbol babel.middleware/eval1122, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :execution}"}
         log (read-log log-string)]
-    (is (= :execution (get-phase log))) 
-    ))
+    (is (= :execution (get-phase log)))))
 
 (deftest test-get-level-nesting
   (testing "get-level-nesting function"
@@ -150,18 +147,16 @@
                       :exception "{:cause \"Too many arguments to if\", :via ({:at [clojure.lang.Compiler analyzeSeq \"Compiler.java\" 7132], :message \"Syntax error compiling if at (/tmp/form-init684767312890052564.clj:1:29).\", :type clojure.lang.Compiler$CompilerException} {:at [clojure.lang.Util runtimeException \"Util.java\" 221], :message \"Too many arguments to if\", :type java.lang.RuntimeException})}",
                       :ex-triage "{:class java.lang.RuntimeException, :line 1, :cause \"Too many arguments to if\", :symbol if, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :compile-syntax-check}"}
           log (read-log log-string)]
-      (is (= 2 (get-level-nesting log)))
-      )))
+      (is (= 2 (get-level-nesting log))))))
 
 (deftest test-get-nested-types
   (testing "get-nested-types function"
-    (let [log-string {:code "(if (= 0 0) (+ 2 3) (+ 2 3) (+2 3))", 
-                      :exception "{:cause \"Too many arguments to if\", :via ({:at [clojure.lang.Compiler analyzeSeq \"Compiler.java\" 7132], :message \"Syntax error compiling if at (/tmp/form-init684767312890052564.clj:1:29).\", :type clojure.lang.Compiler$CompilerException} {:at [clojure.lang.Util runtimeException \"Util.java\" 221], :message \"Too many arguments to if\", :type java.lang.RuntimeException})}", 
+    (let [log-string {:code "(if (= 0 0) (+ 2 3) (+ 2 3) (+2 3))",
+                      :exception "{:cause \"Too many arguments to if\", :via ({:at [clojure.lang.Compiler analyzeSeq \"Compiler.java\" 7132], :message \"Syntax error compiling if at (/tmp/form-init684767312890052564.clj:1:29).\", :type clojure.lang.Compiler$CompilerException} {:at [clojure.lang.Util runtimeException \"Util.java\" 221], :message \"Too many arguments to if\", :type java.lang.RuntimeException})}",
                       :ex-triage "{:class java.lang.RuntimeException, :line 1, :cause \"Too many arguments to if\", :symbol if, :source \"form-init684767312890052564.clj\", :spec \"nil\", :phase :compile-syntax-check}"}
           log (read-log log-string)
           expected-output [clojure.lang.Compiler$CompilerException java.lang.RuntimeException]]
-      (is (= expected-output (get-nested-types log)))
-      )))
+      (is (= expected-output (get-nested-types log))))))
 
 
 
@@ -184,8 +179,7 @@
           filtered-logs (filter-by-code parsed-logs "(/ 70 0)")]
       (is (= 1 (count filtered-logs)))
       (is (= "Divide by zero" (:cause (:exception (first filtered-logs)))))
-      (is (= expected-log (first filtered-logs)))
-      )))
+      (is (= expected-log (first filtered-logs))))))
 
 (deftest test-filter-by-nesting
   (testing "filter-by-nesting function"
@@ -208,5 +202,5 @@
       (is (= (count (filter-search parsed-logs {:phase :read-source :nesting 3})) 8))
       (doseq [log filtered-logs]
         (is (= (:phase (:ex-triage log)) :read-source))
-        (is (= (count (:via (:exception log))) 3)))
-      )))
+        (is (= (count (:via (:exception log))) 3))))))
+

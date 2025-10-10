@@ -68,10 +68,14 @@
     {:cause cause :via via-details})) ; removed :trace (pr-str trace) and phase :phase (pr-str phase)
 
 (defn split-triage [ex]
-  "split the ex-triage into its keys"
+  "split the ex-triage into its keys" 
   (let [triage-map (clojure.main/ex-triage (Throwable->map ex))
-        {:keys [clojure.error/class clojure.error/line clojure.error/cause clojure.error/symbol clojure.error/source clojure.error/spec clojure.error/phase]} triage-map]
-    {:class class :line line :cause cause :symbol symbol :source source :spec (or (pr-str spec) {}) :phase phase}))
+        {:keys [clojure.error/class clojure.error/line clojure.error/cause clojure.error/symbol clojure.error/source clojure.error/spec clojure.error/phase]} triage-map
+        {:keys [:clojure.spec.alpha/problems :clojure.spec.alpha/spec :clojure.spec.alpha/value :clojure.spec.alpha/fn :clojure.spec.alpha/args]} (or spec {})
+        {:keys [:path :reason :pred :val :via :in]} problems]
+    {:class class :line line :cause cause :symbol symbol :source source 
+     :spec {:problems {:path path :reason reason :pred pred :val (pr-str val) :via (pr-str via) :in in} :spec (pr-str spec) :value (pr-str value) :fn (pr-str fn) :args (pr-str args)}
+     :phase phase}))
 
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.

@@ -53,9 +53,9 @@
 (expect "Test (= (2 3 4) (2 3 4)) passed" (fns/check-equal (map inc [1 2 3]) '(2 3 4)))
 (expect "Test (= \"this is a string\" \"this is a string\") passed" 
         (fns/check-equal "this is a string" (str "this is " (first "abcdefghijklmnopqrstuvwxyz") " string")))
-(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message (fns/check-equal 1 1 1))) 
-(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message (fns/check-equal 1))) 
-(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message (fns/check-equal "hello"))) ; should fail on number of arguments first before checking type
+(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message "(fns/check-equal 1 1 1)")) 
+(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message "(fns/check-equal 1)")) 
+(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message "(fns/check-equal \"hello\")")) ; should fail on number of arguments first before checking type
 
 
 
@@ -86,8 +86,8 @@
 (expect "Test (<= 1.0 1.1 1.2) passed" (fns/check-range 1.1 1.0 1.2))
 (expect "Test (<= 1 0 2) failed" (fns/check-range 0 1 2))
 (expect "Test (<= 1.1 1.0 1.2) failed" (fns/check-range 1.0 1.1 1.2))
-(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range "NaN" 0 1)"))
-(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range "NaN" (lazy-seq [1 2 3 4]) 1)"))
+(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range \"NaN\" 0 1)"))
+(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range \"NaN\" (lazy-seq [1 2 3 4]) 1)"))
 
 
 (deftest test-check-precision
@@ -98,8 +98,7 @@
     (is (= (fns/check-precision 1 -1 1) "Test failed: -1 is not within 1 of 1"))
     (is (= (fns/check-precision 1 1.4 0.2) "Test failed: 1.4 is not within 0.2 of 1"))
     (is (= (fns/check-precision 1/3 (/ 1 3.0) 0) "Test passed: 0.3333333333333333 is within 0 of 1/3"))
-    (is (= (fns/check-precision 0.40 (+ 0.1 0.3) 0.0000001) "Test passed: 0.4 is within 1.0E-7 of 0.4"))
-    ;; add tests to check if babel error messages work properly
+    (is (= (fns/check-precision 0.40 (+ 0.1 0.3) 0.0000001) "Test passed: 0.4 is within 1.0E-7 of 0.4")) 
     ))
 
 (expect "Test passed: 1 is within 1 of 1" (fns/check-precision 1 1 1))
@@ -114,5 +113,13 @@
 ;; does = do deep check or shallow check? compare hashmaps and strings and stuff that are formed in different ways (not a priority)
 ;; test the specs (DO THIS SOON)
 ;; game/h
+
+(comment
+ (require '[utilities.exception_exploration :as exploration])
+ (def parsed-logs (exploration/parse-logs "ex.txt")) 
+ (def exec (exploration/filter-search parsed-logs {:phase :execution})) 
+ (:spec (:ex-triage (nth exec 0))) 
+
+)
 
 
