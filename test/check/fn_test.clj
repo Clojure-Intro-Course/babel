@@ -116,10 +116,13 @@
 
 (comment
  (require '[utilities.exception_exploration :as exploration])
- (def parsed-logs (exploration/parse-logs "ex.txt")) 
+ (def parsed-logs (check.fns/remove-nil (exploration/parse-logs "ex.txt"))) 
  (def exec (exploration/filter-search parsed-logs {:phase :execution})) 
- (:spec (:ex-triage (nth exec 0))) 
+ (check.fns/remove-nil (:spec (:ex-triage (nth exec 0))) )
+  
 
+ {:reason "because I felt like it"} 
+ {:a "there is no reason" :b "it does not exist" :c "letters"}
 )
 
 

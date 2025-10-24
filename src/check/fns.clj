@@ -14,7 +14,7 @@
 ;; (defn- object? [x]
 ;;   (instance? java.lang.Object x))
 
-(defn check-equal 
+(defn check-equal
   "Takes two parameters expected and actual. Returns a string 'Test (= v1 v2) passed' if their values are equal,
    and 'Test (= v1 v2) failed' otherwise, where v1 and v2 are the results of evaluating expected and actual respectively."
   [expected actual]
@@ -23,29 +23,35 @@
        #_(catch Throwable e (middleware/modify-message e))))
 
 (s/fdef check-equal
-  :args (s/and :babel.arity/two 
+  :args (s/and :babel.arity/two
                (s/cat :value (s/nilable any?) :second (s/nilable any?))))
 (stest/instrument `check-equal)
 
-(defn check-range 
+(defn check-range
   "Takes a number n, and two numbers, low and high. Returns 'Test (<= low n high) passed' if v is between low and high,
    and 'Test (<= low n high) failed' otherwise."
-  [n low high] 
-  
+  [n low high]
+
   (if (<= low n high) (str "Test (<= " low " " n " " high ") passed") (str "Test (<= " low " " n  " " high ") failed")))
 
 (s/fdef check-range
   :args (s/and :babel.arity/three (s/cat :n :babel.type/number-or-lazy :low :babel.type/number-or-lazy :high :babel.type/number-or-lazy)))
 (stest/instrument `check-range)
 
-(defn check-precision 
+(defn check-precision
   "Takes three numbers: the expected value, the actual value, and the precision. 
    Returns 'Test passed: actual is within precision of expected' if the difference between actual and expected is less than or equal to precision, 
    and 'Test failed: actual is not within precision of expected' otherwise."
   [expected actual precision]
-  (if (<= (- expected precision) actual (+ expected precision)) (str "Test passed: " actual " is within " precision " of " expected) 
+  (if (<= (- expected precision) actual (+ expected precision)) (str "Test passed: " actual " is within " precision " of " expected)
       (str "Test failed: " actual " is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
 
 (s/fdef check-precision
   :args (s/and :babel.arity/three (s/cat :expected :babel.type/number-or-lazy :actual :babel.type/number-or-lazy :precision :babel.type/number-or-lazy)))
 (stest/instrument `check-precision)
+
+(defn has-key?
+  "Takes a keyword and a hashmap, and recursively searches for that keyword in the hashmap, returning logical true if the hashmap has a value other than nil associated with that keyword."
+  [k hm]
+  (or (k hm)
+   (reduce #(or %1 %2) (map #(if (map? %) (has-key? k %) false) (vals hm)))))

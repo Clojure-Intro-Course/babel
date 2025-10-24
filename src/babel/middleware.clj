@@ -12,6 +12,18 @@
   [e]
   (cm/ex-str (cm/ex-triage (Throwable->map e))))
 
+(defn remove-nil
+  "Takes a hashmap and recursively removes pairs that have the value nil or \"nil\". Returns a copy of the hashmap that has these pairs removed"
+   [hm]
+  (->> hm
+       ;; removes all pairs with a second value of nil or "nil"
+      (filter #(not (or (= nil (second %)) (= "nil" (second %)))))
+       ;; recursive call to remove things at all further layers of nesting
+      (map #(if (map? (second %)) [(first %) (remove-nil (second %))] %))
+       ;; put all this into a hashmap
+      (into {})))
+
+
 (defn modify-message ; made public for usage in check.fns/check-equal
   "TODO: Write some great docstring explaining what all of this does."
   [exc]
@@ -68,14 +80,16 @@
     {:cause cause :via via-details})) ; removed :trace (pr-str trace) and phase :phase (pr-str phase)
 
 (defn split-triage [ex]
-  "split the ex-triage into its keys" 
+  "split the ex-triage into its keys"
   (let [triage-map (clojure.main/ex-triage (Throwable->map ex))
         {:keys [clojure.error/class clojure.error/line clojure.error/cause clojure.error/symbol clojure.error/source clojure.error/spec clojure.error/phase]} triage-map
         {:keys [:clojure.spec.alpha/problems :clojure.spec.alpha/spec :clojure.spec.alpha/value :clojure.spec.alpha/fn :clojure.spec.alpha/args]} (or spec {})
-        {:keys [:path :reason :pred :val :via :in]} problems]
-    {:class class :line line :cause cause :symbol symbol :source source 
-     :spec {:problems {:path path :reason reason :pred pred :val (pr-str val) :via (pr-str via) :in in} :spec (pr-str spec) :value (pr-str value) :fn (pr-str fn) :args (pr-str args)}
-     :phase phase}))
+        {:keys [:path :reason :pred :val :via :in]} (or problems {})]
+        (remove-nil {:class class :line line :cause cause :symbol symbol :source source
+                 :spec {:problems {:path path :reason reason :pred pred :val (pr-str val) :via (pr-str via) :in in} :spec (pr-str spec) :value (pr-str value) :fn (pr-str fn) :args (pr-str args)}
+                 :phase phase})))
+
+
 
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
