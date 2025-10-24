@@ -55,3 +55,11 @@
   [k hm]
   (or (k hm)
    (reduce #(or %1 %2) (map #(if (map? %) (has-key? k %) false) (vals hm)))))
+(comment
+  (require '[utilities.exception_exploration :as exploration])
+  (require `check.fns)
+  (def parsed-logs (check.fns/remove-nil (exploration/parse-logs "ex.txt")))
+  (def exec (exploration/filter-search parsed-logs {:phase :execution}))
+;; using has-key? as an argument to filter - (filter #(check.fns/has-key? :reason %) exec), where exec is the result of this series of commands being copied into repl
+;; we learned that babel specs do not produce a :reason on invalid function arity, where things like s/cat and s/tuple do.
+
