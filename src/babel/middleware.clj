@@ -82,12 +82,10 @@
 (defn split-triage [ex]
   "split the ex-triage into its keys"
   (let [triage-map (clojure.main/ex-triage (Throwable->map ex))
-        {:keys [clojure.error/class clojure.error/line clojure.error/cause clojure.error/symbol clojure.error/source clojure.error/spec clojure.error/phase]} triage-map
-        {:keys [:clojure.spec.alpha/problems :clojure.spec.alpha/spec :clojure.spec.alpha/value :clojure.spec.alpha/fn :clojure.spec.alpha/args]} (or spec {})
-        {:keys [:path :reason :pred :val :via :in]} (or problems {})]
-        (remove-nil {:class class :line line :cause cause :symbol symbol :source source
-                 :spec {:problems {:path path :reason reason :pred pred :val (pr-str val) :via (pr-str via) :in in} :spec (pr-str spec) :value (pr-str value) :fn (pr-str fn) :args (pr-str args)}
-                 :phase phase})))
+        {class :clojure.error/class line :clojure.error/line cause :clojure.error/cause symbol :clojure.error/symbol source :clojure.error/source spec :clojure.error/spec phase :clojure.error/phase} triage-map 
+        {problems :clojure.spec.alpha/problems alpha-spec :clojure.spec.alpha/spec value :clojure.spec.alpha/value func :clojure.spec.alpha/fn args :clojure.spec.alpha/args} (or spec {}) 
+        {path :path reason :reason pred :pred val :val problems-via :via in :in} (or (first problems) {})] 
+    {:class class :line line :cause cause :symbol symbol :source source :spec {:problems {:path path :reason reason :pred pred :val (pr-str val) :via (pr-str problems-via) :in in} :spec (pr-str alpha-spec) :value (pr-str value) :fn (pr-str func) :args (pr-str args)} :phase phase}))
 
 
 
@@ -113,3 +111,4 @@
     (if (not= trace "") (println trace) ())))))
 
 (defn reset-track [] (reset! track {}))
+

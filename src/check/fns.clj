@@ -35,7 +35,8 @@
   (if (<= low n high) (str "Test (<= " low " " n " " high ") passed") (str "Test (<= " low " " n  " " high ") failed")))
 
 (s/fdef check-range
-  :args (s/and :babel.arity/three (s/cat :n :babel.type/number-or-lazy :low :babel.type/number-or-lazy :high :babel.type/number-or-lazy)))
+  :args (s/and :babel.arity/three 
+               (s/cat :n :babel.type/number-or-lazy :low :babel.type/number-or-lazy :high :babel.type/number-or-lazy)))
 (stest/instrument `check-range)
 
 (defn check-precision
@@ -47,19 +48,39 @@
       (str "Test failed: " actual " is not within " precision " of " expected))) ; not sure how this one should be phrased, also might need help on the docstrings
 
 (s/fdef check-precision
-  :args (s/and :babel.arity/three (s/cat :expected :babel.type/number-or-lazy :actual :babel.type/number-or-lazy :precision :babel.type/number-or-lazy)))
+  :args (s/and :babel.arity/three 
+               (s/cat :expected :babel.type/number-or-lazy :actual :babel.type/number-or-lazy :precision :babel.type/number-or-lazy)))
 (stest/instrument `check-precision)
 
 (defn has-key?
-  "Takes a keyword and a hashmap, and recursively searches for that keyword in the hashmap, returning logical true if the hashmap has a value other than nil associated with that keyword."
+  "Takes a keyword and a hashmap, and recursively searches for that keyword in the hashmap, returning logical true if the hashmap has a value other than nil associated with that keyword, and false otherwise."
   [k hm]
   (or (k hm)
    (reduce #(or %1 %2) (map #(if (map? %) (has-key? k %) false) (vals hm)))))
-(comment
-  (require '[utilities.exception_exploration :as exploration])
-  (require `check.fns)
-  (def parsed-logs (check.fns/remove-nil (exploration/parse-logs "ex.txt")))
-  (def exec (exploration/filter-search parsed-logs {:phase :execution}))
-;; using has-key? as an argument to filter - (filter #(check.fns/has-key? :reason %) exec), where exec is the result of this series of commands being copied into repl
-;; we learned that babel specs do not produce a :reason on invalid function arity, where things like s/cat and s/tuple do.
 
+;; takes any collection except map, looks to see if it has a particular element in it
+;; returns a string saying which things it found and which things it didn't
+
+(defn has-element
+  "Takes any collection except for a map, and checks to see if it contains all listed elements. Returns a string listing which elements were found and which were not." 
+  [coll & els]
+(reduce #(str %1 ", " %2) (for [el els]
+    (if (contains? (into #{} coll) el) (str "Found " el) (str "Did not find " el))
+    )))
+
+(s/fdef has-element
+  :args (s/and :babel.arity/greater-than-one
+               (s/cat :non-map :babel.type/coll-not-map :anything-else (s/+ :babel.type/any-or-lazy))))
+(stest/instrument `has-element)
+
+(comment
+  (require '[utilities.exception_exploration :as exploration]) 
+  (require `check.fns)
+  (def parsed-logs (exploration/parse-logs "ex.txt"))
+  (filter #(check.fns/has-key? :reason %) parsed-logs) 
+  (require '[babel.utils-for-testing :as utils])
+  (filter #(re-matches (utils/make-pattern #".*" ":babel.arity") (str %)) parsed-logs)
+
+  )
+;; using has-key? as an argument to filter - (filter #(check.fns/has-key? :reason %) exec), where exec is the result of this series of commands being copied into repl
+;; we learned that babel specs do not produce a :reason on invalid function arity, where things like s/cat and s/tuple do. we also improved the exception exploration tool while we were going, so that's good

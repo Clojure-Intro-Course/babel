@@ -4,7 +4,7 @@
 ;### Utils for generating test patterns ##
 ;#########################################
 
-(defn- s->pattern
+(defn s->pattern
   "Takes a string or a regular expression and returns a
   string that can be then combined with other strings to be
   passed to re-pattern"

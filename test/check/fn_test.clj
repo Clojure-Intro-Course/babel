@@ -48,14 +48,14 @@
 
 (expect "Test (= 1 1) passed" (fns/check-equal 1 1))
 (expect "Test (= \"no\" \"no\") passed" (fns/check-equal "no" "no"))
-(expect "Divide by zero" (log/babel-test-message "(fns/check-equal 1 (/ 1 0))"))
-(expect "this-file-does-not-exist.txt (No such file or directory)" (log/babel-test-message "(slurp \"this-file-does-not-exist.txt\")"))
+(expect (t/make-pattern"Tried to divide by zero") (log/babel-test-message "(require `check.fns) (check.fns/check-equal 1 (/ 1 0))"))
+(expect (t/make-pattern "The file this-file-does-not-exist.txt does not exist.") (log/babel-test-message "(slurp \"this-file-does-not-exist.txt\")"))
 (expect "Test (= (2 3 4) (2 3 4)) passed" (fns/check-equal (map inc [1 2 3]) '(2 3 4)))
 (expect "Test (= \"this is a string\" \"this is a string\") passed" 
         (fns/check-equal "this is a string" (str "this is " (first "abcdefghijklmnopqrstuvwxyz") " string")))
-(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message "(fns/check-equal 1 1 1)")) 
-(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message "(fns/check-equal 1)")) 
-(expect "Call to #'check.fns/check-equal did not conform to spec." (log/babel-test-message "(fns/check-equal \"hello\")")) ; should fail on number of arguments first before checking type
+(expect (t/make-pattern "Wrong number of arguments in (check-equal 1 1 1): the function check-equal expects two arguments but was given three arguments.") (log/babel-test-message "(require `check.fns) (check.fns/check-equal 1 1 1)")) 
+(expect (t/make-pattern "Wrong number of arguments in (check-equal 1): the function check-equal expects two arguments but was given one argument.") (log/babel-test-message "(require `check.fns) (check.fns/check-equal 1)")) 
+(expect (t/make-pattern"Wrong number of arguments in (check-equal \"hello\"): the function check-equal expects two arguments but was given one argument.") (log/babel-test-message "(require `check.fns) (check.fns/check-equal \"hello\")")) ; should fail on number of arguments first before checking type
 
 
 
@@ -86,8 +86,8 @@
 (expect "Test (<= 1.0 1.1 1.2) passed" (fns/check-range 1.1 1.0 1.2))
 (expect "Test (<= 1 0 2) failed" (fns/check-range 0 1 2))
 (expect "Test (<= 1.1 1.0 1.2) failed" (fns/check-range 1.0 1.1 1.2))
-(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range \"NaN\" 0 1)"))
-(expect "Call to #'check.fns/check-range did not conform to spec." (log/babel-test-message "(fns/check-range \"NaN\" (lazy-seq [1 2 3 4]) 1)"))
+(expect (t/make-pattern "The first argument of (check-range \"NaN\" 0 1) was expected to be a number but is a string \"NaN\" instead.") (log/babel-test-message "(require `check.fns) (check.fns/check-range \"NaN\" 0 1)"))
+(expect (t/make-pattern "The first argument of (check-range \"NaN\" (1 2 3 4) 1) was expected to be a number but is a string \"NaN\" instead.") (log/babel-test-message "(require `check.fns) (check.fns/check-range \"NaN\" (lazy-seq [1 2 3 4]) 1)"))
 
 
 (deftest test-check-precision
@@ -109,20 +109,12 @@
 (expect "Test passed: 0.3333333333333333 is within 0 of 1/3" (fns/check-precision 1/3 (/ 1 3.0) 0))
 (expect "Test passed: 0.4 is within 1.0E-7 of 0.4" (fns/check-precision 0.40 (+ 0.1 0.3) 0.0000001))
 
+(expect "Found 5" (fns/has-element [1 2 3 4 5] 5))
+(expect "Found 3, Found 1" (fns/has-element [1 3 4 7] 3 1))
+(expect "Found 1, Found 3" (fns/has-element [1 3 4 7] 1 3)) ;; the order of the outputs depends on the order of the input elements to find
+(expect "Found \"hello\", Found \"not here\"" (fns/has-element '("hello" "goodbye" "I'm here" "not here") "hello" "not here"))
+(expect "Did not find 7, Found \"weee\"" (fns/has-element [1 3 "weee" "we" "weeee" "Wii"] 7 "weee"))
 
-;; does = do deep check or shallow check? compare hashmaps and strings and stuff that are formed in different ways (not a priority)
-;; test the specs (DO THIS SOON)
-;; game/h
 
-(comment
- (require '[utilities.exception_exploration :as exploration])
- (def parsed-logs (check.fns/remove-nil (exploration/parse-logs "ex.txt"))) 
- (def exec (exploration/filter-search parsed-logs {:phase :execution})) 
- (check.fns/remove-nil (:spec (:ex-triage (nth exec 0))) )
-  
-
- {:reason "because I felt like it"} 
- {:a "there is no reason" :b "it does not exist" :c "letters"}
-)
 
 
