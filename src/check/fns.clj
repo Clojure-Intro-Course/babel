@@ -84,3 +84,5 @@
   )
 ;; using has-key? as an argument to filter - (filter #(check.fns/has-key? :reason %) exec), where exec is the result of this series of commands being copied into repl
 ;; we learned that babel specs do not produce a :reason on invalid function arity, where things like s/cat and s/tuple do. we also improved the exception exploration tool while we were going, so that's good
+
+

@@ -24,3 +24,5 @@ Launch a repl with ```lein repl```, or whichever tool you prefer. Use that repl 
 Copyright © 2018
 
 Distributed under the MIT license
+
+### Note: there are some things in this branch (notably the read-exception things) that are not needed for the final project and were mainly there for diagnostic purposes, but check.fns should be kept.
