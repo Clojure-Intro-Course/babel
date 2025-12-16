@@ -8,7 +8,6 @@
 
 (defn game
   []
-  (reset! core/state {:correct (rand-int 50), :previous []})
   (let [command (read-line)]
     (cond (contains? (set (map #(str "guess " %) (@core/state :previous))) command) (do (println "This has already been guessed! Try something else.") (game))
           (= command (str "guess " (@core/state :correct))) 
@@ -20,3 +19,7 @@
 
 
 
+(defn start-game
+  []
+  (reset! core/state {:correct (rand-int 50), :previous []})
+  (game))
