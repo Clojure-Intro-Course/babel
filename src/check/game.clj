@@ -7,16 +7,16 @@
 
 
 
-(defn number-guess 
+(defn number-guess
   []
   (reset! number-guess-state number-guess/initial-state)
 
-(loop []  (let [input (clojure.core/read-line)] 
-          (if (= input "quit") (println "Quitting...")) 
-              (swap! number-guess-state number-guess/update-game input) 
-              (number-guess/draw-state @number-guess-state) ;; not sure where in the order to put this 
-              (if (:stop @number-guess-state) (println "Stopping game") (recur))))
-)
+  (loop []  (let [input (. *in* read)]
+              (if (= input -1) (println "Quitting...")
+                  (let [command (. *in* readLine)]
+                    (swap! number-guess-state number-guess/update-game command)
+                    (number-guess/draw-state @number-guess-state) ;; not sure where in the order to put this   
+                    (if (:stop @number-guess-state) (println "Stopping game") (recur)))))))
 
 ;; read keypresses to quit the game?
 

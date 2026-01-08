@@ -6,7 +6,7 @@
 
 (defn update-game 
   [state command]
-  (let [guess (parse-long (second (re-matches #"guess ([0-9]+)" command)))]
+  (let [guess (parse-long (or (second (re-matches #"guess ([0-9]+)" command)) ""))]
     (println "guess = " guess)
     (cond
       (nil? guess) (println "Invalid command")
