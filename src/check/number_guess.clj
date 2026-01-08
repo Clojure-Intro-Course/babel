@@ -5,6 +5,7 @@
 
 
 (defn update-game 
+  "Takes the current state and a command string, and returns the updated state after processing the command."
   [state command]
   (let [guess (parse-long (or (second (re-matches #"guess ([0-9]+)" command)) ""))]
     ;; (println "guess = " guess)
@@ -18,6 +19,7 @@
   )
 
 (defn draw-state
+  "Takes the current state and prints information from it to the console."
   [state]
   (println (str "You have guessed: " (:previous state))))
 
