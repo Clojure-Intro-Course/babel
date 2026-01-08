@@ -13,7 +13,7 @@
 
   (loop []  (let [input (. *in* read)]
               (if (= input -1) (println "Quitting...")
-                  (let [command (. *in* readLine)]
+                  (let [command (str (char input) (read-line))]
                     (swap! number-guess-state number-guess/update-game command)
                     (number-guess/draw-state @number-guess-state) ;; not sure where in the order to put this   
                     (if (:stop @number-guess-state) (println "Stopping game") (recur)))))))
