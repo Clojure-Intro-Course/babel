@@ -7,11 +7,13 @@
 (defn update-game 
   [state command]
   (let [guess (parse-long (or (second (re-matches #"guess ([0-9]+)" command)) ""))]
-    (println "guess = " guess)
+    ;; (println "guess = " guess)
     (cond
       (nil? guess) (println "Invalid command")
       (contains? (:previous state) guess) (println "This has already been guessed! Try something else.")
-      (= guess (state :correct)) (update-in state [:stop] any?)
+      (= guess (state :correct)) (do (println "Yippee!") (update-in state [:stop] any?))
+      (< guess (state :correct)) (do (println "Higher.") (update-in state [:previous] conj guess))
+      (> guess (state :correct)) (do (println "Lower.") (update-in state [:previous] conj guess))
       :else (update-in state [:previous] conj guess)))
   )
 
