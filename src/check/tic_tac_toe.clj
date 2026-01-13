@@ -5,6 +5,26 @@
                     :ml nil, :mm nil, :mr nil,
                     :bl nil, :bm nil, :br nil})
 
+(defn win?
+  "Takes the current state and returns 0 if player 0 has won, 1 if player 1 has won, and nil otherwise."
+  [state player]
+  (let [winning-combinations [[:tl :tm :tr]
+                              [:ml :mm :mr]
+                              [:bl :bm :br]
+                              [:tl :ml :bl]
+                              [:tm :mm :bm]
+                              [:tr :mr :br]
+                              [:tl :mm :br]
+                              [:tr :mm :bl]]]
+    (loop [combinations winning-combinations]
+      (if (empty? combinations)
+        nil
+        (let [combo (first combinations)
+              values (map state combo)]
+          (if  (every? #(= player %) values)
+            (first values)
+            (recur (rest combinations))))))))
+
 (defn update-game
   "Takes the current state and a command string, and returns the updated state after processing the command."
   [state command]
@@ -17,7 +37,7 @@
     )
   )
 (defn enemy-turn 
-  "Takes the current state, and returns the updated state after processing the enemy's turn."
+  "Takes the current state, and returns the updated state after simulating the enemy's turn."
   [state] 
   (loop [choice (rand-nth [:tl :tm :tr :ml :mm :mr :bl :bm :br])]
     (if (nil? (state choice)) 

@@ -29,7 +29,11 @@
               (if (= input -1) (println "Quitting...")
                   (let [command (str (char input) (read-line))]
                     (swap! tic-tac-toe-state tic-tac-toe/update-game command)
-                    (swap! tic-tac-toe-state tic-tac-toe/enemy-turn)
+                    (if (tic-tac-toe/win? @tic-tac-toe-state 0) 
+                      (do (println "You Win!") (swap! tic-tac-toe-state update-in [:stop] any?)) 
+                      (swap! tic-tac-toe-state tic-tac-toe/enemy-turn))
+                    (if (tic-tac-toe/win? @tic-tac-toe-state 1) 
+                      (do (println "Enemy Wins!") (swap! tic-tac-toe-state update-in [:stop] any?)))
                     (tic-tac-toe/draw-state @tic-tac-toe-state) ;; not sure where in the order to put this   
                     (if (:stop @tic-tac-toe-state) (println "Stopping game") (recur)))))))
 
