@@ -13,7 +13,10 @@
   :plugins [[lein-expectations "0.0.8"]]
   :repl-options {;; :nrepl-middleware
                  ;; [babel.middleware/interceptor]
-                 :port 7888}
+                 :port 7888
+                 :report "none"
+                 ;; This is a repl hook, not an nrepl hook (and that's what we want):
+                 :caught babel.middleware/babel-errors}
   :injections [(require 'corefns.corefns)]
   :main babel.middleware
   :aot [babel.middleware])

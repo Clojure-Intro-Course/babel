@@ -47,7 +47,7 @@
 (defn draw-state
   "Takes the current state and prints information from it to the console."
   [state]
-  (println (str (or (state :tl) "_") " " (or ( state :tm) "_") " " (or (state :tr) "_") "\n"
+  (println (str (or (state :tl) "_") " " (or (state :tm) "_") " " (or (state :tr) "_") "\n"
                 (or (state :ml) "_") " " (or (state :mm) "_") " " (or (state :mr) "_") "\n"
                 (or (state :bl) "_") " " (or (state :bm) "_") " " (or (state :br) "_"))))
 

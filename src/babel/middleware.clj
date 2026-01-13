@@ -73,6 +73,17 @@
            "\n"
            (processor/location-non-spec via trace)))))
 
+(defn babel-errors
+  [& [ex]]
+  (let [e (or ex *e)
+        modified (modify-message e)
+        trace (processor/print-stacktrace e) ; for logging
+        ;; vvv investigate this, maybe doesn't need to be in the let block?
+        ;; possibly included here to guarantee order of evaluation is correct.
+        _ (reset! track {:message (record-message e) :modified modified :trace trace})]
+    (println modified)
+    (if (not= trace "") (println trace) ())))
+
 (defn split-exception [ex]
   "split the exception into its keys"
   (let [{:keys [cause trace via phase]} (Throwable->map ex)
