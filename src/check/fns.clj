@@ -39,6 +39,7 @@
                (s/cat :n :babel.type/number-or-lazy :low :babel.type/number-or-lazy :high :babel.type/number-or-lazy)))
 (stest/instrument `check-range)
 
+;; this implementation avoids floating-point errors that happen when comparing the difference between expected and actual to the precision, especially when using (abs) for this purpose
 (defn check-precision
   "Takes three numbers: the expected value, the actual value, and the precision. 
    Returns 'Test passed: actual is within precision of expected' if the difference between actual and expected is less than or equal to precision, 
