@@ -1,10 +1,11 @@
-(ns check.number-guess)
+(ns check.number-guess
+  (:require [check.game]))
 
 
 (def initial-state {:correct (rand-int 100), :previous #{}, :stop false})
 
 
-(defn update-game 
+(defn update-game
   "Takes the current state and a command string, and returns the updated state after processing the command."
   [state command]
   (let [guess (parse-long (or (second (re-matches #"guess ([0-9]+)" command)) ""))]
@@ -15,13 +16,20 @@
       (= guess (state :correct)) (do (println "Yippee!") (update-in state [:stop] any?))
       (< guess (state :correct)) (do (println "Higher.") (update-in state [:previous] conj guess))
       (> guess (state :correct)) (do (println "Lower.") (update-in state [:previous] conj guess))
-      :else (update-in state [:previous] conj guess)))
-  )
+      :else (update-in state [:previous] conj guess))))
 
 (defn draw-state
   "Takes the current state and prints information from it to the console."
   [state]
-  (println (str "You have guessed: " (:previous state))))
+  (println (str "You have guessed: " (:previous state) "\nAlso printing the entire state for debug purposes:" state)))
+
+
+(def game-map
+  {:initial-state initial-state
+   :update-game update-game
+   :win? (fn [state player]
+           (= (:correct state) (get-in state [:players player :guess])))
+   :draw-state draw-state})
 
 
 ;; (defn game
