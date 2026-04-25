@@ -41,7 +41,7 @@
   [state] 
   (loop [choice (rand-nth [:tl :tm :tr :ml :mm :mr :bl :bm :br])]
     (cond (nil? (state choice)) (assoc state choice 1) ; Enemy is 1
-          (every? #(not (nil? (state %))) [:tl :tm :tr :ml :mm :mr :bl :bm :br]) (do (println "It's a tie!") state) ;; Check for tie
+          (and (not (or (:win? state 0) (:win? state 1))) (every? #(not (nil? (state %))) [:tl :tm :tr :ml :mm :mr :bl :bm :br])) (do (println "It's a tie!") state) ;; Check for tie
            :else (recur (rand-nth [:tl :tm :tr :ml :mm :mr :bl :bm :br]))))) ;; TODO: Currently causing an infinite loop. Look into timeout threads?
 
 (defn draw-state
@@ -51,7 +51,8 @@
                 (or (state :ml) "_") " " (or (state :mm) "_") " " (or (state :mr) "_") "\n"
                 (or (state :bl) "_") " " (or (state :bm) "_") " " (or (state :br) "_"))))
 
-(def game-map {:initial-state initial-state
+(def game-map {:commands "Possible commands: tl, tm, tr, ml, mm, mr, bl, bm, br \n (tl for Top Left, etc.)\n press Control+D to quit"
+               :initial-state initial-state
                 :update-game update-game
                 :win? win?
                 :enemy-turn enemy-turn

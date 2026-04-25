@@ -15,20 +15,21 @@
       (contains? (:previous state) guess) (println "This has already been guessed! Try something else.")
       (= guess (state :correct)) (do (println "Yippee!") (update-in state [:stop] any?))
       (< guess (state :correct)) (do (println "Higher.") (update-in state [:previous] conj guess))
-      (> guess (state :correct)) (do (println "Lower.") (update-in state [:previous] conj guess))
-      :else (update-in state [:previous] conj guess))))
+      (> guess (state :correct)) (do (println "Lower.") (update-in state [:previous] conj guess)))
+    (update-in state [:previous] conj guess)))
 
 (defn draw-state
-  "Takes the current state and prints information from it to the console."
+  "Takes the current state and returns the string to print based on that state."
   [state]
-  (println (str "You have guessed: " (:previous state) "\nAlso printing the entire state for debug purposes:" state)))
+  (str "You have guessed: " (:previous state)))
 
 
 (def game-map
-  {:initial-state initial-state
+  {:commands "To guess a number, type 'guess ' followed by a number. For example: 'guess 42'"
+   :initial-state initial-state
    :update-game update-game
    :win? (fn [state player]
-           (= (:correct state) (get-in state [:players player :guess])))
+           (and (= player 0) (contains? (:previous state) (:correct state))))
    :draw-state draw-state})
 
 
@@ -49,4 +50,9 @@
 ;;   []
 ;;   (reset! core/state {:correct (rand-int 50), :previous []})
 ;;   (game))
+
+(defn update-game-test
+  []
+  (check.fns/check-equal (update-game {:correct 42, :previous #{}, :stop false} "guess 50")
+                     {:correct 42, :previous #{50}, :stop false}))
 
