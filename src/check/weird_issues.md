@@ -16,3 +16,8 @@
   ```
   it then runs forever.
   for some reason this loop cannot be interrupted, and I believe this sort of uninterruptible loop would happen if any loop-recur (or possibly normal recursion?) runs forever in a student game. needs more investigation
+
+  give number instead of string in a game command: handled normally. 
+  Execution error (IllegalArgumentException) at check.experiment/update-game (experiment.clj:7).
+Expected string, got java.lang.Long
+Default Error: Expected string, got java.lang.Long
