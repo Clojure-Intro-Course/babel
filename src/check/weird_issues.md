@@ -15,3 +15,4 @@
   (check.game/game check.tic-tac-toe/game-map)
   ```
   it then runs forever.
+  for some reason this loop cannot be interrupted, and I believe this sort of uninterruptible loop would happen if any loop-recur (or possibly normal recursion?) runs forever in a student game. needs more investigation
