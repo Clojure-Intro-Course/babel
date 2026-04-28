@@ -1,14 +1,19 @@
 (ns check.experiment)
 
 (def initial-state {})
-(defn update-game 
+(defn update-game
   [state command]
-  (if zero? command state)
-  (update-game state (- command 0)))
-(defn win? [state]
+  (println (type command) "is command's type")
+  (println command "is command") 
+  (if (zero? command) (update-in state [:counter] #(+ % 1))) ; what if no base case?
+  ;; (println (type (parse-long command)) "is type after calling parse-long") 
+  (if (number? command) (update-game state (dec command)) (update-game state (dec (parse-long command))))
+
+  )
+(defn win? [state player]
   false)
 (defn draw-state [state]
-  "This is a test game that will run forever because yes")
+  state)
 
 (def game-map {:commands "Type in any number"
                :initial-state initial-state
