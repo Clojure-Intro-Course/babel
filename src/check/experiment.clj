@@ -5,9 +5,12 @@
   [state command]
   (println (type command) "is command's type")
   (println command "is command") 
-  (if (zero? command) (update-in state [:counter] #(+ % 1))) ; what if no base case?
+
   ;; (println (type (parse-long command)) "is type after calling parse-long") 
-  (if (number? command) (update-game state (dec command)) (update-game state (dec (parse-long command))))
+  (if (number? command)   
+    (if (zero? command) (update-in state [:counter] #(+ (or % 0) 1))
+      (update-game state (dec command))) 
+    (update-game state (dec (parse-long command))))
 
   )
 (defn win? [state player]

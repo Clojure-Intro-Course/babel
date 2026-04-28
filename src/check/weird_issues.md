@@ -71,3 +71,6 @@ Call sequence:
 [println (ns:clojure.core) called in file core.clj on line 3734]
 [update_game (ns:check.experiment) called in file experiment.clj on line 6]
 ```
+but, infinite recursion, same as infinite tail recursion, cannot be interrupted with CTRL+C or CTRL+D. the only way is to press CTRL+Z and kill repl, which brings you back to the regular terminal - not sure if this is a bash-only thing or if it also works on pwsh
+everything so far is being caught and printed to repl and then sending you back to repl, exactly as normal
+
