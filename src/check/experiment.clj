@@ -11,7 +11,6 @@
     (if (zero? command) (update-in state [:counter] #(+ (or % 0) 1))
       (update-game state (dec command))) 
     (update-game state (dec (parse-long command))))
-
   )
 (defn win? [state player]
   false)
