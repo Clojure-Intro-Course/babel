@@ -8,6 +8,21 @@
 
 (def track (atom {})) ; For debugging and testing purposes.
 
+(println "I am here")
+
+;; Attempt to redirect the errors
+(import java.io.File)
+(import java.io.FileOutputStream)
+(import java.io.PrintStream)
+
+;; Create a log file
+(def f (PrintStream. (FileOutputStream. (File. "log_test.txt"))))
+;; (.println f "a") ; This worked
+
+(System/setOut f) ;; Didn't work - do errors go to standard out?
+
+(println "Redirected output?")
+
 (defn- record-message
   [e]
   (cm/ex-str (cm/ex-triage (Throwable->map e))))
@@ -21,7 +36,7 @@
         {:keys [type message]} (last via)
         phase (:clojure.error/phase (:data (first via)))
         exc-info? (= clojure.lang.ExceptionInfo exc-type)
-        compiler-exc? (= clojure.lang.Compiler$CompilerException exc-type)] 
+        compiler-exc? (= clojure.lang.Compiler$CompilerException exc-type)]
     (cond
       ;; Macro spec failures
       (and nested? compiler-exc? (processor/macro-spec? cause via))
@@ -41,7 +56,7 @@
           (and compiler-exc? (= clojure.lang.ExceptionInfo (resolve type))))
       (str (processor/spec-message data)
            "\n"
-           (processor/location-function-spec data)) 
+           (processor/location-function-spec data))
       ;; Alternate handling of spec errors, 
       ;; if the error happens in the :print-eval phase
       (and exc-info? (= clojure.lang.ExceptionInfo (resolve type)))
@@ -65,24 +80,24 @@
   [& [ex]]
   (let [e (or ex *e)
         modified (modify-message e)
-     trace (processor/print-stacktrace e) ; for logging
-     ;; vvv investigate this, maybe doesn't need to be in the let block?
-     ;; possibly included here to guarantee order of evaluation is correct.
-     _ (reset! track {:message (record-message e) :modified modified :trace trace})]
-     (println modified)
-     (if (not= trace "") (println trace) ())))
+        trace (processor/print-stacktrace e) ; for logging
+        ;; vvv investigate this, maybe doesn't need to be in the let block?
+        ;; possibly included here to guarantee order of evaluation is correct.
+        _ (reset! track {:message (record-message e) :modified modified :trace trace})]
+    (println modified)
+    (if (not= trace "") (println trace) ())))
 
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
 (defn setup-exc
   []
   (set! nrepl.middleware.caught/*caught-fn* #(do
-    (let [modified (modify-message %)
-          trace (processor/print-stacktrace %) ; for logging
-          ;; vvv investigate this, maybe doesn't need to be in the let block?
-          ;; possibly included here to guarantee order of evaluation is correct.
-          _ (reset! track {:message (record-message %) :modified modified :trace trace})]
-    (println modified)
-    (if (not= trace "") (println trace) ())))))
+                                               (let [modified (modify-message %)
+                                                     trace (processor/print-stacktrace %) ; for logging
+                                                     ;; vvv investigate this, maybe doesn't need to be in the let block?
+                                                     ;; possibly included here to guarantee order of evaluation is correct.
+                                                     _ (reset! track {:message (record-message %) :modified modified :trace trace})]
+                                                 (println modified)
+                                                 (if (not= trace "") (println trace) ())))))
 
 (defn reset-track [] (reset! track {}))
