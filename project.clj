@@ -16,8 +16,11 @@
                  ;; [babel.middleware/interceptor]
                  :port 7888
                  :report "none"
+                 ;:eval #(if (instance? Throwable %) 5 (eval %))
+                 ;:eval #((println "Hello") (eval %))
                  ;; This is a repl hook, not an nrepl hook (and that's what we want):
                  :caught babel.middleware/babel-errors}
    :injections [(require 'corefns.corefns)]
    :main babel.middleware
-   :aot [babel.middleware])
+   ;:aot [babel.middleware]
+  )
