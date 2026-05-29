@@ -84,6 +84,7 @@
         ;; vvv investigate this, maybe doesn't need to be in the let block?
         ;; possibly included here to guarantee order of evaluation is correct.
         _ (reset! track {:message (record-message e) :modified modified :trace trace})]
+    (.flush *out*)
     (println modified)
     (if (not= trace "") (println trace) ())))
 
