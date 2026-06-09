@@ -84,10 +84,10 @@
         ;; vvv investigate this, maybe doesn't need to be in the let block?
         ;; possibly included here to guarantee order of evaluation is correct.
         _ (reset! track {:message (record-message e) :modified modified :trace trace})]
-    (.flush *out*)
-    (println modified)
-    (if (not= trace "") (println trace) ())))
-
+    ;;(do (.flush *err*) ; tried *err" as well
+        (println modified)
+        (if (not= trace "") (println trace) ())))
+    
 ;; I don't seem to be able to bind this var in middleware.
 ;; Running (setup-exc) in repl does the trick.
 (defn setup-exc
