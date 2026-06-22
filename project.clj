@@ -16,6 +16,8 @@
                  ;; [babel.middleware/interceptor]
                  :port 7888
                  :report "none"
+                 ; :print #(prn "Hi! " %)
+                 ;;:prompt "Hi There"
                  ;:eval #(if (instance? Throwable %) 5 (eval %))
                  ;:eval #((println "Hello") (eval %))
                  ;; This is a repl hook, not an nrepl hook (and that's what we want):
