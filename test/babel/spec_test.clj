@@ -352,3 +352,15 @@
 (expect nil (log/babel-test-message "(contains? [1 2 3] (contains? \"a\" 1))"))
 
 (expect nil (log/babel-test-message "(contains? [] '(1 2 3))"))
+
+(expect nil (log/babel-test-message "(+ 2 ##NaN)"))
+
+(expect nil (log/babel-test-message "(+ ##Inf 5)"))
+
+(expect nil (log/babel-test-message "(+ ##-Inf 3)"))
+
+(expect nil (log/babel-test-message "(+ ##Inf 1 ##NaN)"))
+
+(expect nil (log/babel-test-message "(+ ##NaN ##NaN)"))
+
+(expect nil (log/babel-test-message "(+ ##Inf ##Inf)"))
