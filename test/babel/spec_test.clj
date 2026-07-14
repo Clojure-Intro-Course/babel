@@ -364,3 +364,19 @@
 (expect nil (log/babel-test-message "(+ ##NaN ##NaN)"))
 
 (expect nil (log/babel-test-message "(+ ##Inf ##Inf)"))
+
+(expect nil (log/babel-test-message "(first [1 2 3])"))
+
+(expect nil (log/babel-test-message "(first '(4 5))"))
+
+(expect nil (log/babel-test-message "(first [])"))
+
+(expect nil (log/babel-test-message "(first nil)"))
+
+(expect nil (log/babel-test-message "(count [1 2 3])"))
+
+(expect nil (log/babel-test-message "(count '(4 5))"))
+
+(expect nil (log/babel-test-message "(count [])"))
+
+(expect nil (log/babel-test-message "(count nil)"))

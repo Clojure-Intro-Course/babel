@@ -296,6 +296,10 @@
 
 ;; -- Generic Operations --
 
+(s/fdef clojure.core/count
+  :args (s/cat :collection (s/nilable :babel.type/seqable)))
+#_(stest/instrument `clojure.core/count)
+
 (s/fdef clojure.core/into
   :args (s/and :babel.arity/zero-to-three
                (s/or :arg-one (s/cat :any (s/? any?))
@@ -321,6 +325,15 @@
     (s/alt :arg-one (s/cat :only-collection (s/alt :map (s/nilable map?) :set (s/nilable set?) :vector (s/nilable vector?) :lazy :babel.type/lazy) :any (s/nilable any?))
           :arg-two (s/cat :string (s/nilable :babel.type/string) :number (s/alt :number (s/nilable :babel.type/number) :lazy :babel.type/lazy)))))
 (stest/instrument `clojure.core/contains?)
+
+
+;; // Lists
+
+;; -- Use --
+
+(s/fdef clojure.core/first
+  :args (s/cat :collection (s/nilable :babel.type/seqable)))
+#_(stest/instrument `clojure.core/first)
 
 
 ;; // Maps
