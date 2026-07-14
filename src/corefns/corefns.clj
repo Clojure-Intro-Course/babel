@@ -206,12 +206,6 @@
   :args (s/and :babel.arity/one (s/cat :number :babel.type/number-or-lazy)))
 (stest/instrument `clojure.core/rand-int)
 
-;; (s/fdef clojure.core// ;check inline
-;;   :args (s/and :babel.arity/greater-than-zero
-;;                (s/or :a (s/cat :checkfirst (s/and int? ::b-not-zero))
-;;                      :b (s/cat :checkfirst int? :checkafter (s/+ (s/and int? #(not= % 0))))))) ;this part does not work for zero
-;; (stest/instrument `clojure.core//)
-
 ;; The missing core functions from this section are 'quot', 'rem', 'dec' and 'with-precision'.
 
 
