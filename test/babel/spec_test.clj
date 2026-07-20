@@ -28,6 +28,13 @@
 (expect (t/make-pattern "Wrong number of arguments in (take-last 5): the function take-last expects two arguments but was given one argument.")
 (log/babel-test-message "(take-last 5)"))
 
+(expect (t/make-pattern "Wrong number of arguments in (first ): the function first expects one argument but was given no arguments.")
+(log/babel-test-message "(first)"))
+
+;; Inline issue on the function 'count'
+;; (expect (t/make-pattern "The function count cannot be called with no arguments.")
+;; (log/babel-test-message "(count)"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;Extra Output;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,6 +43,41 @@
 
 (expect (t/make-pattern "Wrong number of arguments in (even? 6 <...>): the function even? expects one argument but was given two arguments.")
 (log/babel-test-message "(even? 6 (Object.))"))
+
+(expect (t/make-pattern "Wrong number of arguments in (first [1 2] [3 4]): the function first expects one argument but was given two arguments.")
+(log/babel-test-message "(first [1 2] [3 4])"))
+
+(expect (t/make-pattern "Wrong number of arguments in (first [1 2] true): the function first expects one argument but was given two arguments.")
+(log/babel-test-message "(first [1 2] true)"))
+
+(expect (t/make-pattern "Wrong number of arguments in (first [1 2] ""): the function first expects one argument but was given two arguments.")
+(log/babel-test-message "(first [1 2] "")"))
+
+(expect (t/make-pattern "Wrong number of arguments in (first [1 2] :s): the function first expects one argument but was given two arguments.")
+(log/babel-test-message "(first [1 2] :s)"))
+
+(expect (t/make-pattern "Wrong number of arguments in (first [1 2] [3 4] [5 6]): the function first expects one argument but was given three arguments.")
+(log/babel-test-message "(first [1 2] [3 4] [5 6])"))
+
+;; Commented out the tests due to inline issue on the function 'count'.
+
+;; (expect (t/make-pattern "Wrong number of arguments in (count [1 2] 3): the function count requires fewer than two arguments.")
+;; (log/babel-test-message "(count [1 2] 3)"))
+
+;; (expect (t/make-pattern "Wrong number of arguments in (count [1 2] [3 4]): the function count requires fewer than two arguments.")
+;; (log/babel-test-message "(count [1 2] [3 4])"))
+
+;; (expect (t/make-pattern "Wrong number of arguments in (count [1 2] true): the function count requires fewer than two arguments.")
+;; (log/babel-test-message "(count [1 2] true)"))
+
+;; (expect (t/make-pattern "Wrong number of arguments in (count [1 2] ""): the function count requires fewer than two arguments.")
+;; (log/babel-test-message "(count [1 2] "")"))
+
+;; (expect (t/make-pattern "Wrong number of arguments in (count [1 2] :s): the function count requires fewer than two arguments.")
+;; (log/babel-test-message "(count [1 2] :s)"))
+
+;; (expect (t/make-pattern "Wrong number of arguments in (count [1 2] [3 4] [5 6]): the function count requires fewer than two arguments.")
+;; (log/babel-test-message "(count [1 2] [3 4] [5 6])"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;First Argument;;;;;;;;;;;;;;;;;;;;
@@ -200,6 +242,25 @@
 
 (expect (t/make-pattern "The first argument of (even? <...>) was expected to be a number but is an object <...> instead.")
 (log/babel-test-message "(even? (Object.))"))
+
+(expect (t/make-pattern "The first argument of (first 21) was expected to be unknown condition but is a number 21 instead.")
+(log/babel-test-message "(first 21)"))
+
+(expect (t/make-pattern "The first argument of (first true) was expected to be unknown condition but is a boolean true instead.")
+(log/babel-test-message "(first true)"))
+
+(expect (t/make-pattern "The first argument of (first :s) was expected to be unknown condition but is a keyword :s instead.")
+(log/babel-test-message "(first :s)"))
+
+;; Inline issue on the function 'count'.
+;; (expect (t/make-pattern "The count argument of (count 21) was expected to be unknown condition but is a number 21 instead.")
+;; (log/babel-test-message "(count 21)"))
+
+;; (expect (t/make-pattern "The count argument of (count true) was expected to be unknown condition but is a boolean true instead.")
+;; (log/babel-test-message "(count true)"))
+
+;; (expect (t/make-pattern "The count argument of (count :s) was expected to be unknown condition but is a keyword :s instead.")
+;; (log/babel-test-message "(count :s)"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;Second Argument;;;;;;;;;;;;;;;;;;;;

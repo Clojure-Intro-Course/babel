@@ -296,9 +296,11 @@
 
 ;; -- Generic Operations --
 
-(s/fdef clojure.core/count
-  :args (s/cat :collection (s/nilable :babel.type/seqable)))
-#_(stest/instrument `clojure.core/count)
+(s/fdef clojure.core/count ; inline issue
+  :args (s/&  (s/* any?)
+              :babel.arity/one
+              (s/cat :collection (s/nilable :babel.type/seqable))))
+(stest/instrument `clojure.core/count)
 
 (s/fdef clojure.core/into
   :args (s/and :babel.arity/zero-to-three
@@ -332,8 +334,10 @@
 ;; -- Use --
 
 (s/fdef clojure.core/first
-  :args (s/cat :collection (s/nilable :babel.type/seqable)))
-#_(stest/instrument `clojure.core/first)
+  :args (s/& (s/* any?)
+        :babel.arity/one
+        (s/cat :collection (s/nilable :babel.type/seqable))))
+(stest/instrument `clojure.core/first)
 
 
 ;; // Maps
