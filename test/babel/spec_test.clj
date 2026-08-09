@@ -252,6 +252,132 @@
 (expect (t/make-pattern "The first argument of (first :s) was expected to be unknown condition but is a keyword :s instead.")
 (log/babel-test-message "(first :s)"))
 
+;; (expect (t/make-pattern "Default Error: Infinite or NaN")
+;; (log/babel-test-message "(mod ##NaN 5)"))
+
+;; (expect (t/make-pattern "Default Error: Infinite or NaN")
+;; (log/babel-test-message "(mod ##Inf 5)"))
+
+;; (expect (t/make-pattern "Default Error: Infinite or NaN")
+;; (log/babel-test-message "(mod ##-Inf 5)"))
+
+;; (expect (t/make-pattern "Default Error: Infinite or NaN")
+;; (log/babel-test-message "(mod ##Inf ##Inf)"))
+
+;; (expect (t/make-pattern "Default Error: Infinite or NaN")
+;; (log/babel-test-message "(mod ##Inf ##NaN)"))
+
+;; (expect (t/make-pattern "Default Error: Value out of range for long: Infinity")
+;; (log/babel-test-message "(rand-int ##Inf)"))
+
+;; (expect (t/make-pattern "Default Error: Value out of range for long: -Infinity")
+;; (log/babel-test-message "(rand-int ##-Inf)"))
+
+;; (expect (t/make-pattern "Default Error: Value out of range for int: Infinity")
+;; (log/babel-test-message "(int ##Inf)"))
+
+;; (expect (t/make-pattern "Default Error: Value out of range for int: -Infinity")
+;; (log/babel-test-message "(int ##-Inf)"))
+
+;; (expect (t/make-pattern "Expected an integer number, but a sequence NaN was given instead.")
+;; (log/babel-test-message "(even? ##NaN)"))
+
+;; (expect (t/make-pattern "Expected an integer number, but a sequence Infinity was given instead.")
+;; (log/babel-test-message "(even? ##Inf)"))
+
+;; (expect (t/make-pattern "Expected an integer number, but a sequence -Infinity was given instead.")
+;; (log/babel-test-message "(even? ##-Inf)"))
+
+;; (expect (t/make-pattern "Expected an integer number, but a sequence NaN was given instead.")
+;; (log/babel-test-message "(odd? ##NaN)"))
+
+;; (expect (t/make-pattern "Expected an integer number, but a sequence Infinity was given instead.")
+;; (log/babel-test-message "(odd? ##Inf)"))
+
+;; (expect (t/make-pattern "Expected an integer number, but a sequence -Infinity was given instead.")
+;; (log/babel-test-message "(odd? ##-Inf)"))
+
+(expect (t/make-pattern "The first argument of (subs NaN Infinity) was expected to be a string but is a number NaN instead.")
+(log/babel-test-message "(subs ##NaN ##Inf)"))
+
+(expect (t/make-pattern "The first argument of (subs Infinity -Infinity) was expected to be a string but is a number Infinity instead.")
+(log/babel-test-message "(subs ##Inf ##-Inf)"))
+
+;; (expect (t/make-pattern "Function count does not allow a number as an argument in this position.")
+;; (log/babel-test-message "(count ##NaN)"))
+
+;; (expect (t/make-pattern "Function count does not allow a number as an argument in this position.")
+;; (log/babel-test-message "(count ##Inf)"))
+
+;; (expect (t/make-pattern "Function count does not allow a number as an argument in this position.")
+;; (log/babel-test-message "(count ##-Inf)"))
+
+(expect (t/make-pattern "The first argument of (into NaN Infinity) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(into ##NaN ##Inf)"))
+
+(expect (t/make-pattern "The first argument of (conj Infinity -Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(conj ##Inf ##-Inf)"))
+
+(expect (t/make-pattern "The first argument of (conj NaN 3) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(conj ##NaN 3)"))
+
+(expect (t/make-pattern "The first argument of (first NaN) was expected to be unknown condition but is a number NaN instead.")
+(log/babel-test-message "(first ##NaN)"))
+
+(expect (t/make-pattern "The first argument of (first Infinity) was expected to be unknown condition but is a number Infinity instead.")
+(log/babel-test-message "(first ##Inf)"))
+
+(expect (t/make-pattern "The first argument of (first -Infinity) was expected to be unknown condition but is a number -Infinity instead.")
+(log/babel-test-message "(first ##-Inf)"))
+
+(expect (t/make-pattern "The first argument of (get-in NaN Infinity) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(get-in ##NaN ##Inf)"))
+
+(expect (t/make-pattern "The first argument of (take-while NaN) was expected to be a function but is a number NaN instead.")
+(log/babel-test-message "(take-while ##NaN)"))
+
+(expect (t/make-pattern "The first argument of (drop-while Infinity) was expected to be a function but is a number Infinity instead.")
+(log/babel-test-message "(drop-while ##Inf)"))
+
+(expect (t/make-pattern "The first argument of (group-by NaN [1 2 3]) was expected to be a function but is a number NaN instead.")
+(log/babel-test-message "(group-by ##NaN [1 2 3])"))
+
+(expect (t/make-pattern "The first argument of (partition-by NaN [1 2]) was expected to be a function but is a number NaN instead.")
+(log/babel-test-message "(partition-by ##NaN [1 2])"))
+
+(expect (t/make-pattern "Expected a function, but a number was given instead.")
+(log/babel-test-message "(filter ##NaN [1 2])"))
+
+(expect (t/make-pattern "The first argument of (remove NaN [1 2]) was expected to be a function but is a number NaN instead.")
+(log/babel-test-message "(remove ##NaN [1 2])"))
+
+(expect (t/make-pattern "The first argument of (replace NaN [1 2]) was expected to be a map or a vector but is a number NaN instead.")
+(log/babel-test-message "(replace ##NaN [1 2])"))
+
+(expect (t/make-pattern "The first argument of (replace NaN Infinity) was expected to be a map or a vector but is a number NaN instead.")
+(log/babel-test-message "(replace ##NaN ##Inf)"))
+
+(expect (t/make-pattern "Expected a function, but a number was given instead.")
+(log/babel-test-message "(map ##NaN [1 2])"))
+
+(expect (t/make-pattern "The first argument of (keep Infinity) was expected to be a function but is a number Infinity instead.")
+(log/babel-test-message "(keep ##Inf)"))
+
+(expect (t/make-pattern "The first argument of (reduce NaN [3 4 5]) was expected to be a function but is a number NaN instead.")
+(log/babel-test-message "(reduce ##NaN [3 4 5])"))
+
+(expect (t/make-pattern "Expected a function, but a number was given instead.")
+(log/babel-test-message "(var-get ##-Inf)"))
+
+(expect (t/make-pattern "Don't know how to create a sequence from a number.")
+(log/babel-test-message "(use ##NaN)"))
+
+(expect (t/make-pattern "Don't know how to create a sequence from a number.")
+(log/babel-test-message "(require ##NaN)"))
+
+(expect (t/make-pattern "Expected a symbol, but a number was given instead.")
+(log/babel-test-message "(refer ##Inf)"))
+
 ;; Inline issue on the function 'count'.
 ;; (expect (t/make-pattern "The count argument of (count 21) was expected to be unknown condition but is a number 21 instead.")
 ;; (log/babel-test-message "(count 21)"))
@@ -265,6 +391,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;Second Argument;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (expect (t/make-pattern "The second argument of (map map map) was expected to be a sequence but is a function map instead.")
 (log/babel-test-message "(map map map)"))
 
@@ -304,10 +431,97 @@
 (expect (t/make-pattern "The second argument of (map + java.lang.Class) was expected to be a sequence but is a type java.lang.Class instead.")
 (log/babel-test-message "(map + (type (class 6)))"))
 
+;; (expect (t/make-pattern "Default Error: Infinite or NaN")
+;; (log/babel-test-message "(mod 5 ##NaN)"))
+
+(expect (t/make-pattern "In (subs "" Infinity) the second argument, which is a number Infinity, fails a requirement: clojure.core/int? or clojure.core/int?")
+(log/babel-test-message "(subs "" ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (into [] Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(into [] ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (take 3 -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(take 3 ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (take NaN Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(take ##NaN ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (take-last 3 -Infinity) was expected to be unknown condition but is a number -Infinity instead.")
+(log/babel-test-message "(take-last 3 ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (take-last NaN Infinity) was expected to be unknown condition but is a number Infinity instead.")
+(log/babel-test-message "(take-last ##NaN ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (take-nth Infinity NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(take-nth ##Inf ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (take-while even? Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(take-while even? ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (drop NaN -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(drop ##NaN ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (drop-last Infinity NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(drop-last ##Inf ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (drop-while odd? NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(drop-while odd? ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (group-by clojure.spec.test.alpha$spec_checking_fn$fn__3026@58ae67af Infinity) was expected to be unknown condition but is a number Infinity instead.")
+(log/babel-test-message "(group-by count ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (partition 2 -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(partition 2 ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (partition 2 NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(partition 2 ##NaN)"))
+
+(expect (t/make-pattern "Don't know how to create a sequence from a number.")
+(log/babel-test-message "(partition-all 2 ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (partition-by even? NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(partition-by even? ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (filter even? Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(filter even? ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (remove even? -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(remove even? ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (replace [1 2] NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(replace [1 2] ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (replace [1 2] -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(replace [1 2] ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (map + NaN [1 2]) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(map + ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (map NaN -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(map ##NaN ##-Inf)"))
+
+(expect (t/make-pattern "The second argument of (keep even? NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(keep even? ##NaN)"))
+
+(expect (t/make-pattern "The second argument of (reduce + Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(reduce + ##Inf)"))
+
+(expect (t/make-pattern "The second argument of (reduce clojure.spec.test.alpha$spec_checking_fn$fn__3026@2baa7c83 -Infinity) was expected to be a sequence but is a number -Infinity instead.")
+(log/babel-test-message "(reduce - ##-Inf)"))
+
 ;; Enum printing: 
 (expect (t/make-pattern "The second argument of (map inc NEW) was expected to be a sequence but is a constant NEW instead.")
 (log/babel-test-message "(map inc (.getState (new java.lang.Thread)))"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;Third Argument;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(expect (t/make-pattern "The third argument of (map + [1 2] Infinity) was expected to be a sequence but is a number Infinity instead.")
+(log/babel-test-message "(map + [1 2] ##Inf)"))
+
+(expect (t/make-pattern "The third argument of (reduce + [1 2] NaN) was expected to be a sequence but is a number NaN instead.")
+(log/babel-test-message "(reduce + [1 2] ##NaN)"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Spec errors on functions invoked by higher order functions ;;
