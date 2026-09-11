@@ -36,6 +36,7 @@
       (do (println "This command is invalid. Please use one of the following: tl, tm, tr, ml, mm, mr, bl, bm, br") state))
     )
   )
+
 (defn enemy-turn 
   "Takes the current state, and returns the updated state after simulating the enemy's turn."
   [state] 

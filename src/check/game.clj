@@ -1,5 +1,6 @@
 (ns check.game
-  (:require [clojure.edn]))
+  (:require [clojure.edn :as edn]
+            [clojure.core.async :as async]))
 
 
 (def number-guess-state (atom {})) ; student does not get to change this
@@ -12,11 +13,20 @@
   (loop [game-state (atom (:initial-state game-map))] 
    (println (:commands game-map))
    (let [input (. *in* read)]
+     (println "test 1")
     (if (= input -1) (println "Quitting...") ;; ctrl+D is the end of input, which translates to -1 in this case. 
-        (let [command (str (char input) (read-line))]
-          (swap! game-state (:update-game game-map) command) ;; player turn, always exists 
+        (let [command (str (char input) (read-line)) io-channel (async/timeout 30000)] 
+          (println "test 2")
+          (async/>!! io-channel (:update-game game-map command)) ;; run update-game with command, then store result in io-channel
+          (println "test 3")
+          (swap! game-state (async/<!! io-channel)) ;; update game-state with result from io-channel
+          (println "test 4")
           (if ((:win? game-map) @game-state 0) (do (println "You Win!") (swap! game-state update-in [:stop] any?))) ;; check if player wins after their turn 
-          (if (:enemy-turn game-map) (swap! game-state (:enemy-turn game-map))) ;; run the enemy turn if it exists
+          (if (:enemy-turn game-map) 
+            (do 
+              (async/>!! io-channel (:enemy-turn game-map)) ;; run the enemy turn and store to the channel
+              (swap! game-state (async/<!! io-channel)))) ;; grab result from the channel
+           (println "test 30")
           (if ((:win? game-map) @game-state 1) (do (println "Enemy Wins!") (swap! game-state update-in [:stop] any?))) ;; check if enemy wins after their turn
           (println ((:draw-state game-map) @game-state)) ;; draw the state
           (if (:stop @game-state) (println "Stopping game") (recur game-state)) ;; stop the game if :stop is true, otherwise continue
