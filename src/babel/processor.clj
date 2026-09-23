@@ -55,7 +55,7 @@
                :regex "a regular expression",  :lazy "a lazy sequence"
                :wrong-path "of correct type and length"
                :sequence "a sequence of vectors with only 2 elements or a map with key-value pairs"
-               :only-collection "a collection"})
+               :only-collection "a collection", :integer "an integer"})
 
 ;; Unqualified names for arity (argument count) specs are translated to readable string representations here.
 (def length-ref {:one "one argument", :two "two arguments", :three "three arguments",

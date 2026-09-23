@@ -84,6 +84,7 @@
 (s/def :babel.type/symbol symbol?)
 ;; Many functions allow lazy (unevaluated) sequences in place of other data types
 (s/def :babel.type/lazy lazy?)
+(s/def :babel.type/integer integer?)
 
 ;; Babel specs for number validation
 (s/def :babel.type/non-zero-number b-not-0?)
@@ -118,6 +119,9 @@
   (s/alt :arg-one :babel.type/number-or-lazy
          :arg-two (s/cat :number :babel.type/number-or-lazy
                          :collection (s/nilable :babel.type/seqable))))
+(s/def :babel.type/integer-or-lazy 
+  (s/alt :integer :babel.type/integer, 
+         :lazy :babel.type/lazy))
 
 ;; Babel specs for regular expressions
 (s/def :babel.type/regex-or-lazy 
@@ -137,6 +141,9 @@
 (s/def :babel.args/some-numbers
   (s/and :babel.arity/greater-than-zero 
          (s/cat :number (s/+ :babel.type/number))))
+(s/def :babel.args/one-integer 
+  (s/and :babel.arity/one 
+         (s/cat :integer :babel.type/integer-or-lazy)))
 
 ;; These were (probably) used for macros, but are seemingly unused as of now 
 ;; (s/def ::bindings-seq2 (s/and vector? ::binding-seq))
@@ -225,11 +232,11 @@
 (stest/instrument `clojure.core/identical?)
 
 (s/fdef clojure.core/even?
-  :args :babel.args/one-number)
+  :args :babel.args/one-integer)
 (stest/instrument `clojure.core/even?)
 
 (s/fdef clojure.core/odd?
-  :args :babel.args/one-number)
+  :args :babel.args/one-integer)
 (stest/instrument `clojure.core/odd?)
 
 
