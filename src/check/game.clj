@@ -2,6 +2,7 @@
   (:require [clojure.edn :as edn]
             [clojure.core.async :as async]))
 
+;; fix the git weirdness
 
 (def number-guess-state (atom {})) ; student does not get to change this
 (def tic-tac-toe-state (atom {}))
