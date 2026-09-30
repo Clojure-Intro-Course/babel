@@ -243,6 +243,15 @@
 (expect (t/make-pattern "The first argument of (even? <...>) was expected to be an integer but is an object <...> instead.")
 (log/babel-test-message "(even? (Object.))"))
 
+(expect (t/make-pattern "The first argument of (even? 1.2) was expected to be an integer but is a number 1.2 instead.")
+(log/babel-test-message "(even? 1.2)"))
+
+(expect (t/make-pattern "The first argument of (even? 1.0) was expected to be an integer but is a number 1.0 instead.")
+(log/babel-test-message "(even? 1.0)"))
+
+(expect (t/make-pattern "The first argument of (odd? 1.2) was expected to be an integer but is a number 1.2 instead.")
+(log/babel-test-message "(odd? 1.2)"))
+
 (expect (t/make-pattern "The first argument of (first 21) was expected to be unknown condition but is a number 21 instead.")
 (log/babel-test-message "(first 21)"))
 
