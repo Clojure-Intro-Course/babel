@@ -3,8 +3,8 @@
 (def initial-state {})
 (defn update-game
   [state command]
-  (println (type command) "is command's type")
-  (println command "is command") 
+  (loop [state state]
+    (recur (str command state))) 
 
   ;; (println (type (parse-long command)) "is type after calling parse-long") 
   (if (number? command)   
