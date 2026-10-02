@@ -4,10 +4,8 @@
 
 (def number-guess-state (atom {})) ; student does not get to change this
 (def tic-tac-toe-state (atom {}))
-(defn- catch-timeout
-  "Takes a function and a timeout in ms, and returns the result of the function if it completes within the timeout, nil otherwise."
-  [f x timeout & args]
-  (deref (future (f x args)) timeout nil))
+(defn- catch-timeout [f ms default & args]
+  (deref (future (apply f args)) ms default))
 
 (defn game
   "Runs the game. Takes a hashmap containing game functions and returns nil."
@@ -17,12 +15,13 @@
     (let [input (. *in* read)]
       (if (= input -1) (println "Quitting...") ;; ctrl+D is the end of input, which translates to -1 in this case. 
           (let [command (str (char input) (read-line))]
-            (swap! game-state (:update-game game-map) command) ;; player turn, always exists 
+            (reset! game-state
+                    (catch-timeout (:update-game game-map) 5000 @game-state @game-state command)) ;; player turn, always exists 
             (if ((:win? game-map) @game-state 0)
               (do (println "You Win!") (swap! game-state update-in [:stop] any?))) ;; check if player wins after their turn 
             (if (:enemy-turn game-map)
               (reset! game-state ;; run the enemy turn if it exists
-                      (deref (future ((:enemy-turn game-map) @game-state)) 5000 @game-state))) ;; timeout!!
+                      (catch-timeout (:enemy-turn game-map) 5000 @game-state @game-state))) ;; timeout!!
             (println ((:draw-state game-map) @game-state)) ;; draw the state
             (if ((:win? game-map) @game-state 1)
               (do (println "Enemy Wins!") (swap! game-state update-in [:stop] any?))) ;; check if enemy wins after their turn
