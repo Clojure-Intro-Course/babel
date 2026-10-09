@@ -7,6 +7,8 @@
   (:gen-class))
 
 (def track (atom {})) ; For debugging and testing purposes.
+(def logger (agent [])) ; for error logging
+
 
 (defn- record-message
   [e]
@@ -82,6 +84,7 @@
         ;; possibly included here to guarantee order of evaluation is correct.
         _ (reset! track {:message (record-message e) :modified modified :trace trace})]
     (println modified)
+    (send logger (fn [cur] (conj cur @track))) ; added for agent-based error logging
     (if (not= trace "") (println trace) ())))
 
 (defn split-exception [ex]
@@ -123,3 +126,4 @@
 
 (defn reset-track [] (reset! track {}))
 
+(defn get-logs [] @logger)

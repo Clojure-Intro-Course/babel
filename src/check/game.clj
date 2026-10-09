@@ -1,7 +1,7 @@
 (ns check.game
   (:require [clojure.edn]))
 
-
+(def logging (agent []))
 (def number-guess-state (atom {})) ; student does not get to change this
 (def tic-tac-toe-state (atom {}))
 (defn- catch-timeout [f ms default & args]
@@ -12,9 +12,11 @@
   [game-map]
   (loop [game-state (atom (:initial-state game-map))]
     (println (:commands game-map))
+    (send logging conj (str "Game started with initial state: " @game-state))
     (let [input (. *in* read)]
       (if (= input -1) (println "Quitting...") ;; ctrl+D is the end of input, which translates to -1 in this case. 
           (let [command (str (char input) (read-line))]
+            (send logging conj (str "Command entered: " command))
             (reset! game-state
                     (catch-timeout (:update-game game-map) 5000 @game-state @game-state command)) ;; player turn, always exists 
             (if ((:win? game-map) @game-state 0)
@@ -27,7 +29,8 @@
               (do (println "Enemy Wins!") (swap! game-state update-in [:stop] any?))) ;; check if enemy wins after their turn
 
             (if (:stop @game-state) (println "Stopping game") (recur game-state)) ;; stop the game if :stop is true, otherwise continue
-            )))))
+            ))))
+  (println @logging))
 
 #_(defn number-guess
     "Runs the number-guess game. Takes no arguments and returns nil."
