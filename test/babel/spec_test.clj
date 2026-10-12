@@ -117,6 +117,9 @@
 (expect (t/make-pattern "The first argument of (filter (1)) was expected to be a function but is a list (1) instead.")
 (log/babel-test-message "(filter '(1))"))
 
+(expect (t/make-pattern "The first argument of (filter 5 [2]) was expected to be a function but is a number 5 instead.")
+(log/babel-test-message "(filter 5 [2])"))
+
 (expect (t/make-pattern "The first argument of (take [] []) was expected to be a number but is a vector [] instead.")
 (log/babel-test-message "(take [] [])"))
 
@@ -354,7 +357,7 @@
 (expect (t/make-pattern "The first argument of (partition-by NaN [1 2]) was expected to be a function but is a number NaN instead.")
 (log/babel-test-message "(partition-by ##NaN [1 2])"))
 
-(expect (t/make-pattern "Expected a function, but a number was given instead.")
+(expect (t/make-pattern "The first argument of (filter NaN [1 2]) was expected to be a function but is a number NaN instead.")
 (log/babel-test-message "(filter ##NaN [1 2])"))
 
 (expect (t/make-pattern "The first argument of (remove NaN [1 2]) was expected to be a function but is a number NaN instead.")
@@ -622,6 +625,8 @@
 (expect nil (log/babel-test-message "(filter even? '(1 2 3))"))
 
 (expect nil (log/babel-test-message "(filter 2 [])")) ;fails
+
+(expect nil (log/babel-test-message "(filter filter (list))"))
 
 (expect nil (log/babel-test-message "(take 2 \"hmmmm\")"))
 

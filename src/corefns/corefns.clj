@@ -122,6 +122,8 @@
 (s/def :babel.type/integer-or-lazy 
   (s/alt :integer :babel.type/integer, 
          :lazy :babel.type/lazy))
+(s/def :babel.type/empty-seqable
+  (s/and :babel.type/seqable empty?))
 
 ;; Babel specs for regular expressions
 (s/def :babel.type/regex-or-lazy 
@@ -434,9 +436,10 @@
 (s/fdef clojure.core/filter
   :args (s/and :babel.arity/one-to-two
     ;; TODO: figure out if there is any reason for any-or-lazy
-    (s/or :arg-one (s/cat :function :babel.type/any-or-lazy :collection (s/nilable :babel.type/seqable))
-          :arg-two (s/cat :function :babel.type/function-or-lazy))))
-(stest/instrument `clojure.core/filter)
+    (s/or :arg-one (s/cat :function :babel.type/any-or-lazy)
+          :arg-two (s/or :non-empty (s/cat :function :babel.type/function-or-lazy :collection :babel.type/seqable)
+                          :empty (s/cat :function any? :collection :babel.type/empty-seqable)))))
+(stest/instrument `clojure.core/filter) 
 
 (s/fdef clojure.core/remove
   :args (s/and :babel.arity/one-to-two
