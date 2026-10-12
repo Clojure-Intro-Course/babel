@@ -84,7 +84,7 @@
         ;; possibly included here to guarantee order of evaluation is correct.
         _ (reset! track {:message (record-message e) :modified modified :trace trace})]
     (println modified)
-    (send logger (fn [cur] (conj cur @track))) ; added for agent-based error logging
+    (send logger (fn [cur] (conj cur (assoc @track :time (.toString (java.time.LocalDateTime/now)))))) ; added for agent-based error logging
     (if (not= trace "") (println trace) ())))
 
 (defn split-exception [ex]
