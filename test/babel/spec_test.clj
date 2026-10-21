@@ -120,6 +120,12 @@
 (expect (t/make-pattern "The first argument of (filter 5 [2]) was expected to be a function but is a number 5 instead.")
 (log/babel-test-message "(filter 5 [2])"))
 
+(expect (t/make-pattern "The first argument of (sort 5 [2]) was expected to be a comparison function but is a number 5 instead.")
+(log/babel-test-message "(sort 5 [2])"))
+
+(expect (t/make-pattern "The first argument of (sort even?) was expected to be a collection, but is a function even? instead.")
+(log/babel-test-message "(sort even?)"))
+
 (expect (t/make-pattern "The first argument of (take [] []) was expected to be a number but is a vector [] instead.")
 (log/babel-test-message "(take [] [])"))
 
@@ -624,9 +630,25 @@
 
 (expect nil (log/babel-test-message "(filter even? '(1 2 3))"))
 
-(expect nil (log/babel-test-message "(filter 2 [])")) ;fails
+(expect nil (log/babel-test-message "(filter 2 [])"))
 
 (expect nil (log/babel-test-message "(filter filter (list))"))
+
+(expect nil (log/babel-test-message "(sort [1 5 2])"))
+
+(expect nil (log/babel-test-message "(sort [\"a\" \"A\" \"!\"])"))
+
+(expect nil (log/babel-test-message "(sort 5 [])"))
+
+(expect nil (log/babel-test-message "(sort > [1 5 2])"))
+
+(expect nil (log/babel-test-message "(sort nil)"))
+
+(expect nil (log/babel-test-message "(sort nil nil)"))
+
+(expect nil (log/babel-test-message "(sort [\"a\" nil])"))
+
+(expect nil (log/babel-test-message "(sort even? [1])"))
 
 (expect nil (log/babel-test-message "(take 2 \"hmmmm\")"))
 

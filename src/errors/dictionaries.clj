@@ -52,7 +52,8 @@
                       :java.io.BufferedReader "a file or an input stream"
                       ;; gives enough to beginners to look it up:
                       :java.lang.Throwable "an exception (Throwable)"
-                      :java.lang.Exception "an exception"})
+                      :java.lang.Exception "an exception"
+                      :java.util.Comparator "a comparison function"})
 
 ;; matching type interfaces to beginner-friendly names.
 ;; Note: since a type may implement more than one interface,

@@ -124,6 +124,9 @@
          :lazy :babel.type/lazy))
 (s/def :babel.type/empty-seqable
   (s/and :babel.type/seqable empty?))
+(s/def :babel.type/comparator
+  (s/alt :comparator #(instance? java.util.Comparator %),
+          :lazy :babel.type/lazy))
 
 ;; Babel specs for regular expressions
 (s/def :babel.type/regex-or-lazy 
@@ -452,6 +455,13 @@
     (s/or :arg-one (s/cat :map-or-vector (s/nilable :babel.type/map-vec-or-lazy))
           :arg-two (s/cat :map-or-vector (s/nilable :babel.type/map-vec-or-lazy) :collection (s/nilable :babel.type/seqable)))))
 (stest/instrument `clojure.core/replace)
+
+(s/fdef clojure.core/sort ;; Doesn't work as intended yet, need to replace empty-seqable with new spec for count of 1 or 0
+  :args (s/and :babel.arity/one-to-two
+    (s/or :arg-one (s/cat :collection (s/nilable :babel.type/seqable))
+          :arg-two (s/or :non-empty (s/cat :comparator :babel.type/comparator :collection (s/nilable :babel.type/seqable))
+                          :empty (s/cat :comparator any? :empty-coll :babel.type/empty-seqable)))))
+(stest/instrument `clojure.core/sort)
 
 ;; -- Use (Iteration) --
 
