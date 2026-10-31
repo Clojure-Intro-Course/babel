@@ -7,7 +7,9 @@
   (:gen-class))
 
 (def track (atom {})) ; For debugging and testing purposes.
-(def logger (agent [])) ; for error logging
+(def logger (agent "started")) ; for error logging
+(def current-time (.toString (java.time.LocalDateTime/now)))
+(spit (str "log/" current-time ".log") "")
 
 
 (defn- record-message
@@ -75,6 +77,8 @@
            "\n"
            (processor/location-non-spec via trace)))))
 
+
+
 (defn babel-errors
   [& [ex]]
   (let [e (or ex *e)
@@ -83,8 +87,11 @@
         ;; vvv investigate this, maybe doesn't need to be in the let block?
         ;; possibly included here to guarantee order of evaluation is correct.
         _ (reset! track {:message (record-message e) :modified modified :trace trace})]
-    (println modified)
-    (send logger (fn [cur] (conj cur (assoc @track :time (.toString (java.time.LocalDateTime/now)))))) ; added for agent-based error logging
+    (println modified) 
+    (send logger (fn [cur] (str (.toString (java.time.LocalDateTime/now)) " " @track "\n"))) ; added for agent-based error logging
+    #_(send logger "hello")
+    
+    (send logger (fn [cur] (spit (str current-time ".log") cur :append true) "finished"))
     (if (not= trace "") (println trace) ())))
 
 (defn split-exception [ex]

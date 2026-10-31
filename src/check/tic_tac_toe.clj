@@ -1,9 +1,10 @@
 (ns check.tic-tac-toe
   (:require [babel.utils-for-testing :as utils]))
-
-(def initial-state {:tl nil, :tm nil, :tr nil,
-                    :ml nil, :mm nil, :mr nil,
-                    :bl nil, :bm nil, :br nil})
+;; 
+(def initial-state {:tl 0, :tm 1, :tr 1,
+                    :ml 1, :mm 0, :mr 0,
+                    :bl 0, :bm 1, :br 1})
+;; (def initial-state {})
 
 (defn win?
   "Takes the current state and returns 0 if player 0 has won, 1 if player 1 has won, and nil otherwise."
