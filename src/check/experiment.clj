@@ -1,5 +1,7 @@
 (ns check.experiment)
 
+
+;; THIS INTENTIONALLY RUNS FOREVER. The purpose of the experiment is to test the timeout feature, and possibly generate an exception.
 (def initial-state {})
 (defn update-game
   [state command]

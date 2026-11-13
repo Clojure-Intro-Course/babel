@@ -91,7 +91,7 @@
     (send logger (fn [cur] (str (.toString (java.time.LocalDateTime/now)) " " @track "\n"))) ; added for agent-based error logging
     #_(send logger "hello")
     
-    (send logger (fn [cur] (spit (str current-time ".log") cur :append true) "finished"))
+    (send logger (fn [cur] (spit (str "log/" current-time ".log") cur :append true) "finished"))
     (if (not= trace "") (println trace) ())))
 
 (defn split-exception [ex]

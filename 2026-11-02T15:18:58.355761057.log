@@ -1,0 +1,1 @@
+2026-11-02T15:19:06.699369110 {:message "Syntax error reading source at (REPL:1:25).\nInvalid number: 4395834759837.log\n", :modified "The format of the number 4395834759837.log is invalid.\n\nFound while reading position 25 of line 1 in a dynamic expression.", :trace "Call sequence:\n[Clojure interactive session (repl)]"}

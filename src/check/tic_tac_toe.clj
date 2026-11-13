@@ -1,6 +1,6 @@
 (ns check.tic-tac-toe
   (:require [babel.utils-for-testing :as utils]))
-;; 
+
 (def initial-state {:tl 0, :tm 1, :tr 1,
                     :ml 1, :mm 0, :mr 0,
                     :bl 0, :bm 1, :br 1})
@@ -41,7 +41,7 @@
   (loop [choice (rand-nth [:tl :tm :tr :ml :mm :mr :bl :bm :br])]
     (cond (nil? (state choice)) (assoc state choice 1) ; Enemy is 1
           (and (not (or (win? state 0) (win? state 1))) (every? #(not (nil? (state %))) [:tl :tm :tr :ml :mm :mr :bl :bm :br])) (do (println "It's a tie!") state) ;; Check for tie
-          :else (recur (rand-nth [:tl :tm :tr :ml :mm :mr :bl :bm :br]))))) ;; TODO: Currently causing an infinite loop. Look into timeout threads?
+          :else (recur (rand-nth [:tl :tm :tr :ml :mm :mr :bl :bm :br]))))) ;
 
 (defn draw-state
   "Takes the current state and prints information from it to the console."
